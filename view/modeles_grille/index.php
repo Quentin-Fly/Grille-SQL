@@ -1,0 +1,29 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Gestion des grilles</title>
+    </head>
+
+    <body>
+
+        <h1>Gestion des grilles</h1>
+
+        <?php
+            require __DIR__ . "/selectModele.php";
+        ?>
+
+    <?php if ($afficherCreation) : ?>
+
+        <?php require __DIR__ . "/formulaireCreation.php"; ?>
+    
+    <?php endif; ?>
+
+    </body>
+
+
+
+</html>
