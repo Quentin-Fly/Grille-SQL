@@ -28,13 +28,15 @@
         $ID = $dernierID + 1;
 
         // Verifie si la date exite déjà dans la base de donnée
-        $sql = "SELECT anneeDebut FROM anneesuniversitaires WHERE anneeDebut = :anneeDebut";
-        $anneeExiste = $stmt->fetchColumn();
+        $sqlAnnee = "SELECT anneeDebut FROM anneesuniversitaires WHERE anneeDebut = :anneeDebut";
+        $stmtAnnee = $pdo->prepare($sqlAnnee);
+        $stmtAnnee->execute([':anneeDebut' => $anneeDebut]);
+        $anneeExiste = $stmtAnnee->fetchColumn();
 
         if (!$anneeExiste) 
         {
             // Si l'année n'existe pas, l'ajouter à la table anneesuniversitaires
-            $sqlInsert = "INSERT INTO anneesuniversitaires (anneeDebut, fin) VALUES (:anneeDebut, :anneeFin)";
+            $sqlInsert = "INSERT INTO anneesuniversitaires (anneeDebut, fin) VALUES (:anneeDebut, :fin)";
             $stmtInsert = $pdo->prepare($sqlInsert);
             $stmtInsert->execute([':anneeDebut' => $anneeDebut, ':fin' => $anneeDebut + 1]);
         }
@@ -50,7 +52,7 @@
         $stmt->bindParam(':nomModuleGrilleEvaluation', $nomModuleGrilleEvaluation);
         $stmt->bindParam(':anneeDebut', $anneeDebut);
 
-        return $stmt->execute();
+        return $stmt->execute() ? $ID : false;
     }
 
     function getModeleParId($pdo, $idModeleEval)
