@@ -1,5 +1,10 @@
     <?php
 
+    function getNaturesGrilleValides()
+    {
+        return ['ANGLAIS', 'RAPPORT', 'SOUTENANCE', 'STAGE', 'PORTFOLIO'];
+    }
+
     function getAllModele($pdo)
     {
         // Récupérer tous les modèles de la base de données
@@ -41,12 +46,20 @@
 
             $stmt->execute();
             $pdo->commit();
-            return true;
+            return $pdo->lastInsertId();
         }
         catch (Throwable $e)
         {
             $pdo->rollBack();
             throw $e;
         }
+    }
+    function getModeleParId($pdo, $idModeleEval)
+    {
+        $sql = "SELECT * FROM modelesgrilleeval WHERE IdModeleEval = :ID";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([':ID' => $idModeleEval]);
+
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 ?>

@@ -30,28 +30,41 @@
     if (isset($_POST['creerModele'])) 
     {
         $afficherCreation = true;
+        $pointDepart = $_POST['pointDepart'] ?? 'vierge';
         foreach ($valeursFormulaire as $champ => $_)
         {
             $valeursFormulaire[$champ] = trim((string) ($_POST[$champ] ?? ''));
         }
 
-        $naturesPossibles = ['ANGLAIS', 'RAPPORT', 'SOUTENANCE', 'STAGE', 'PORTFOLIO'];
+        $natureGrille = $valeursFormulaire['natureGrille'];
+        $idModeleSource = $_POST['modeleSource'] ?? '';
+        $modeleSource = null;
+        if ($pointDepart === 'copie' && $idModeleSource !== '')
+        {
+            $modeleSource = getModeleParId($pdo, $idModeleSource);
+            $natureGrille = $modeleSource['natureGrille'] ?? '';
+        }
+
         $noteMax = filter_var($valeursFormulaire['noteMax'], FILTER_VALIDATE_FLOAT);
         $anneeDebut = filter_var($valeursFormulaire['anneeDebut'], FILTER_VALIDATE_INT);
 
-        if (!in_array($valeursFormulaire['natureGrille'], $naturesPossibles, true)
+        if (($pointDepart !== 'vierge' && $pointDepart !== 'copie')
+            || ($pointDepart === 'vierge' && !in_array($natureGrille, getNaturesGrilleValides(), true))
+            || ($pointDepart === 'copie' && !$modeleSource)
             || $valeursFormulaire['nomModule'] === ''
             || strlen($valeursFormulaire['nomModule']) > 80
             || $noteMax === false || $noteMax < 0.5
             || $anneeDebut === false || $anneeDebut < 1 || $anneeDebut >= 9999)
         {
-            $erreurCreation = "Vérifie la nature, le nom du module (80 caractères maximum), la note maximale et l'année.";
+            $erreurCreation = $pointDepart === 'copie'
+                ? "Vérifie le modèle source, le nom du module (80 caractères maximum), la note maximale et l'année."
+                : "Vérifie la nature, le nom du module (80 caractères maximum), la note maximale et l'année.";
         }
         else
         {
             try
             {
-                addModele($pdo, $valeursFormulaire['natureGrille'], $noteMax,
+                addModele($pdo, $natureGrille, $noteMax,
                     $valeursFormulaire['nomModule'], $anneeDebut);
                 $succesCreation = "Modèle créé avec succès.";
                 $afficherCreation = false;
