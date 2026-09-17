@@ -3,14 +3,11 @@
 <form method="post" action="">
 
     <label for="natureGrille">Nature de la grille :</label>
-    <!-- Sélection obligatoire de la nature de la grille dans une liste déroulante -->
     <select name="natureGrille" id="natureGrille" required>
         <option value="">Sélectionnez une nature</option>
-        <option value="ANGLAIS">Anglais</option>
-        <option value="RAPPORT">Rapport</option>
-        <option value="SOUTENANCE">Soutenance</option>
-        <option value="STAGE">Stage</option>
-        <option value="PORTFOLIO">Portfolio</option>
+        <?php foreach (getNaturesGrilleValides() as $nature) : ?>
+        <option value="<?= $nature ?>"><?= ucfirst(strtolower($nature)) ?></option>
+        <?php endforeach; ?>
     </select>
 
     <label for="nomModule">Nom du module :</label>
