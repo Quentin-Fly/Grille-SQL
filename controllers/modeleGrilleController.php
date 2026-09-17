@@ -22,11 +22,40 @@
     }
 
     if (isset($_POST['creerModele'])) 
+{
+    $pointDepart = $_POST['pointDepart'] ?? 'vierge';
+    $nomModuleGrilleEvaluation = $_POST['nomModule'];
+    $noteMaxGrille = $_POST['noteMax'];
+    $anneeDebut = $_POST['anneeDebut'];
+
+    if ($pointDepart === 'copie') 
     {
-        $natureGrille = $_POST['natureGrille'];
-        $nomModuleGrilleEvaluation = $_POST['nomModule'];
-        $noteMaxGrille = $_POST['noteMax'];
-        $anneeDebut = $_POST['anneeDebut'];
+        $idModeleSource = $_POST['modeleSource'] ?? '';
+        $modeleSource = $idModeleSource !== '' ? getModeleParId($pdo, $idModeleSource) : null;
+
+        if (!$modeleSource) 
+        {
+            $erreurCreation = "Veuillez sélectionner un modèle source valide à copier.";
+        } 
+        else 
+        {
+            $idNouveauModele = addModele($pdo, $modeleSource['natureGrille'], $noteMaxGrille, $nomModuleGrilleEvaluation, $anneeDebut);
+
+            if ($idNouveauModele) 
+            {
+                // TODO (checklist suivante "Copier toute la structure") :
+                // copierStructureModele($pdo, $idModeleSource, $idNouveauModele);
+                echo "Modèle créé (structure à dupliquer à l'étape suivante).";
+            } 
+            else 
+            {
+                $erreurCreation = "Erreur lors de la création du modèle.";
+            }
+        }
+    } 
+    else 
+    {
+        $natureGrille = $_POST['natureGrille'] ?? '';
 
         if (!in_array($natureGrille, getNaturesGrilleValides(), true)) 
         {
@@ -41,5 +70,6 @@
             $erreurCreation = "Erreur lors de la création du modèle.";
         }
     }
+}
     require __DIR__ . "/../view/modeles_grille/index.php";
 ?>
