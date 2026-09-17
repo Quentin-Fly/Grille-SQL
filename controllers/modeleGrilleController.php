@@ -23,22 +23,22 @@
 
     if (isset($_POST['creerModele'])) 
     {
-        // Récupération des données du formulaire de création de modèle
         $natureGrille = $_POST['natureGrille'];
         $nomModuleGrilleEvaluation = $_POST['nomModule'];
         $noteMaxGrille = $_POST['noteMax'];
         $anneeDebut = $_POST['anneeDebut'];
 
-        // Appel de la fonction pour ajouter le modèle à la base de données
-        if (addModele($pdo, $natureGrille, $noteMaxGrille, $nomModuleGrilleEvaluation, $anneeDebut)) 
+        if (!in_array($natureGrille, getNaturesGrilleValides(), true)) 
         {
-            // Si l'ajout est réussi, afficher un message de succès
+            $erreurCreation = "Nature de grille invalide.";
+        } 
+        else if (addModele($pdo, $natureGrille, $noteMaxGrille, $nomModuleGrilleEvaluation, $anneeDebut)) 
+        {
             echo "Modèle créé avec succès.";
         } 
         else 
         {
-            // Sinon, afficher un message d'erreur
-            echo "Erreur lors de la création du modèle.";
+            $erreurCreation = "Erreur lors de la création du modèle.";
         }
     }
     require __DIR__ . "/../view/modeles_grille/index.php";
