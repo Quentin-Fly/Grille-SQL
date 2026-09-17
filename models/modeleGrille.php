@@ -1,5 +1,10 @@
 <?php
 
+    function getNaturesGrilleValides()
+    {
+        return ['ANGLAIS', 'RAPPORT', 'SOUTENANCE', 'STAGE', 'PORTFOLIO'];
+    }
+
     function getAllModele($pdo)
     {
         // Récupérer tous les modèles de la base de données
