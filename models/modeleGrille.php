@@ -52,4 +52,13 @@
 
         return $stmt->execute();
     }
+
+    function getModeleParId($pdo, $idModeleEval)
+    {
+        $sql = "SELECT * FROM modelesgrilleeval WHERE IdModeleEval = :ID";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([':ID' => $idModeleEval]);
+
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
 ?>
