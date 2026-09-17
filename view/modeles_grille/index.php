@@ -12,6 +12,14 @@
 
         <h1>Gestion des grilles</h1>
 
+        <?php if ($erreurCreation !== null) : ?>
+            <p role="alert"><?= htmlspecialchars($erreurCreation, ENT_QUOTES, 'UTF-8') ?></p>
+        <?php endif; ?>
+
+        <?php if ($succesCreation !== null) : ?>
+            <p role="status"><?= htmlspecialchars($succesCreation, ENT_QUOTES, 'UTF-8') ?></p>
+        <?php endif; ?>
+
         <?php
             require __DIR__ . "/selectModele.php";
         ?>

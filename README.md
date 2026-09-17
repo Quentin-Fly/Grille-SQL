@@ -12,7 +12,7 @@
 - [x] **Lecture des modèles.** La fonction `getAllModele($pdo)` et une requête `SELECT` sur `ModelesGrilleEval` ont été montrées. Fichier : `models/ModeleGrille.php`.
 - [x] **Base MVC et vues.** Le contrôleur procédural et les vues `index.php`, `selectModele.php` et `formulaireCreation.php` ont été montrés. Fichiers : `controllers/modeleGrilleController.php`, `view/modeles_grille/`.
 - [x] **Parcours de sélection.** La liste des modèles, l’option « créer un nouveau modèle » et le bouton « Sélectionner » ont été décrits et codés dans l’échange. Fichier : `view/modeles_grille/selectModele.php`.
-- [ ] **En cours — formulaire et insertion.** Un formulaire de création et un appel à `addModele` étaient présents, mais l’enregistrement échouait sur des noms de colonnes. Vérifier l’état actuel de `view/modeles_grille/formulaireCreation.php` et `models/ModeleGrille.php`.
+- [x] **En cours — formulaire et insertion.** Un formulaire de création et un appel à `addModele` étaient présents, mais l’enregistrement échouait sur des noms de colonnes. Vérifier l’état actuel de `view/modeles_grille/formulaireCreation.php` et `models/ModeleGrille.php`.
 
 ## Créer et modifier un modèle
 
