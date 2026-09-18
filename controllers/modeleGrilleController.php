@@ -64,8 +64,7 @@
         {
             try
             {
-                addModele($pdo, $natureGrille, $noteMax,
-                    $valeursFormulaire['nomModule'], $anneeDebut);
+                addModele($pdo, $natureGrille, $noteMax, $valeursFormulaire['nomModule'], $anneeDebut, $pointDepart);
                 $succesCreation = "Modèle créé avec succès.";
                 $afficherCreation = false;
             }
