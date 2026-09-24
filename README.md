@@ -1,35 +1,78 @@
-# Grille-SQL
+# Grille SQL
 
-# Checklist de reprise — structure des grilles
+# Checklist de reprise — modèles de grille
 
-**Périmètre :** section 5.1 du sujet R3.07, avec les seules règles utiles sur la composition et l’historique des grilles, ainsi que le scénario du 20 septembre. Ce fichier est destiné à être complété avec le binôme.
+**Périmètre :** section 5.1 du sujet R3.07 et règles directement utiles à la création, la copie, la modification et l’historique des modèles de grille.
 
-**Légende :** `[x]` fait et montré dans la conversation ; `[ ]` à faire ; `[ ]` à vérifier lorsque l’état actuel du code ou le résultat n’est pas confirmé. Modifiez les cases et les explications au fil du travail.
+**Légende :** `[x]` réalisé et vérifié ; `[ ]` à réaliser ou à tester.
 
-## Déjà en place dans le projet
+> **Mise à jour de la base :** le schéma actuel relie directement les critères aux modèles avec `ModeleContenirCriteres`. Les anciennes tables de sections ne sont plus utilisées. La gestion des sections demandée dans le sujet doit être clarifiée avec l’enseignant.
 
-- [x] **Connexion à la base.** Une connexion PDO à `evaluationstages` et une gestion des erreurs ont été montrées. Fichier : `config/database.php`.
-- [x] **Lecture des modèles.** La fonction `getAllModele($pdo)` et une requête `SELECT` sur `ModelesGrilleEval` ont été montrées. Fichier : `models/ModeleGrille.php`.
-- [x] **Base MVC et vues.** Le contrôleur procédural et les vues `index.php`, `selectModele.php` et `formulaireCreation.php` ont été montrés. Fichiers : `controllers/modeleGrilleController.php`, `view/modeles_grille/`.
-- [x] **Parcours de sélection.** La liste des modèles, l’option « créer un nouveau modèle » et le bouton « Sélectionner » ont été décrits et codés dans l’échange. Fichier : `view/modeles_grille/selectModele.php`.
-- [x] **Limiter les natures aux cinq types prévus.** Proposer `ANGLAIS`, `RAPPORT`, `SOUTENANCE`, `STAGE` et `PORTFOLIO`. Corriger toute valeur `PORFOLIO`. Fichiers : `formulaireCreation.php`, contrôleur.
-- [x] **Choisir le point de départ.** Proposer une structure vierge ou la copie d’un modèle de l’année écoulée ; dans le second cas, laisser choisir le modèle source. Fichiers : `formulaireCreation.php`, contrôleur.
-- [x] **Formulaire et insertion.** Un formulaire de création et un appel à `addModele` étaient présents, mais l’enregistrement échouait sur des noms de colonnes. Vérifier l’état actuel de `view/modeles_grille/formulaireCreation.php` et `models/ModeleGrille.php`.
+## Socle fonctionnel
 
-## Créer et modifier un modèle
+- [x] **Connexion à la base.** Connexion PDO à `evaluationstages` avec gestion des erreurs.
+- [x] **Architecture MVC.** Le contrôleur prépare les données, le modèle exécute les requêtes SQL et les vues affichent les résultats.
+- [x] **Lecture des modèles.** `getAllModele($pdo)` récupère les modèles.
+- [x] **Écran de sélection.** La liste affiche les modèles existants et l’option « Créer un nouveau modèle ».
+- [x] **Cinq natures fixes.** `ANGLAIS`, `RAPPORT`, `SOUTENANCE`, `STAGE` et `PORTFOLIO`.
+- [x] **Choix du point de départ dans l’interface.** Structure vierge ou copie d’un modèle existant.
 
-- [x] **Enregistrer le nouveau modèle.** Vérifier la nature, l’année et la note maximale, puis utiliser une requête préparée. Dans `AnneesUniversitaires`, les colonnes sont `anneeDebut` et `fin`. Laisser `AUTO_INCREMENT` attribuer `IdModeleEval`. Fichiers : contrôleur, `models/ModeleGrille.php`.
-- [ ] **Gérer les sections et les critères.** Permettre d’ajouter ou supprimer une section ; dans une section, retirer un critère, ajouter un critère déjà en base ou créer puis ajouter un critère. Pour les grilles spécifiques, respecter 1 à 3 sections, 1 à 5 critères par section et une note maximale d’au moins 0,5 par critère. Fichiers : vues d’édition, modèle SQL.
-- [ ] **Copier toute la structure.** Copier le modèle, ses sections, ses critères et les liaisons nécessaires. Les nouveaux enregistrements doivent être indépendants des anciens ; regrouper les insertions dans une transaction. Fichier : `models/ModeleGrille.php`.
-- [ ] **Modifier un modèle avant son utilisation.** Autoriser les mêmes changements tant que le modèle n’a pas servi à une évaluation. Vérifier les tables d’évaluation et, si nécessaire, les notes de critères avant toute modification. Fichiers : contrôleur, modèle SQL.
+## Création d’un modèle
 
-## Préserver l’historique et vérifier le résultat
+- [x] **Création d’une structure vierge.** Le modèle est enregistré dans `ModelesGrilleEval` sans critère initial.
+- [x] **Gestion de l’année universitaire.** L’année est recherchée puis créée avec sa valeur `fin` si nécessaire.
+- [x] **Identifiant automatique.** `IdModeleEval` est produit par `AUTO_INCREMENT` puis récupéré.
+- [x] **Transaction de création.** La création de l’année et du modèle est validée ou annulée ensemble.
+- [x] **Validation du formulaire.** La nature, le nom, la note maximale et l’année sont contrôlés.
+- [x] **Doublon de nom.** Un message spécifique est affiché.
+- [x] **Doublon nature et année.** Un message spécifique est affiché.
+- [ ] **Année universitaire automatique.** Créer une fonction commune : année civile si le mois est au moins octobre, sinon année civile moins un.
 
-- [ ] **Conserver les anciens modèles.** Ne pas écraser un modèle utilisé. Conserver ses sections, critères et liaisons pour relire les évaluations passées. Créer un nouveau modèle même pour une petite modification. Une même structure peut aussi être utilisée sur plusieurs années. Fichiers : modèle SQL, contrôleur.
-- [ ] **Tester la grille avant validation.** Simuler son affichage, la saisie des notes, leurs maxima et la note calculée, sans enregistrer les notes de test. Fichiers : vue de simulation, contrôleur.
-- [ ] **Vérifier les deux scénarios du sujet.** Portfolio : partir d’un modèle vierge et créer 2 sections de 3 critères. Soutenance : copier le modèle précédent puis modifier les notes maximales des critères. Dans les deux cas, les anciennes structures doivent rester consultables. Fichiers : interface complète, base de test.
-- [ ] **Rejouer les erreurs déjà rencontrées.** Vérifier les corrections `anneDebut` → `anneeDebut` et `anneeFin` → `fin`, l’affichage unique de la vue et l’apparition du formulaire après le clic sur « Sélectionner ». Fichiers : `models/ModeleGrille.php`, contrôleur.
+## Consultation et édition
 
-**Note de suivi :** les cases cochées reflètent le code et les explications montrés dans la conversation, pas une inspection du dépôt actuel. Cochez les autres cases après un essai concluant.
+- [x] **Sélection sécurisée d’un modèle.** L’identifiant reçu est validé avant la recherche.
+- [x] **Affichage du modèle sélectionné.** La vue affiche son nom, sa nature, son année et sa note maximale sans réutiliser le formulaire de création.
+- [x] **État vide des critères.** La vue affiche un message lorsqu’aucun critère n’est associé.
+- [x] **Lecture ordonnée des critères.** `getCriteresParIdModele()` relie `ModeleContenirCriteres` à `CriteresEval` et trie par `NumOrdre ASC`.
+- [ ] **Tester la lecture avec des critères réels.** Vérifier descriptions, valeur maximale et ordre.
 
-**Source :** sujet R3.07 2026–2027, p. 3 (composition), p. 6 (évolution et historique), p. 12 (section 5.1) et p. 17 (scénario du 20 septembre).
+## Gestion des critères
+
+- [ ] **Créer un nouveau critère.** Enregistrer `descCourte` et `descLongue` dans `CriteresEval`.
+- [ ] **Associer le critère au modèle.** Enregistrer `IdCritere`, `IdModeleEval`, `ValeurMaxCritereEval` et `NumOrdre` dans `ModeleContenirCriteres`.
+- [ ] **Utiliser une transaction.** La création du critère et son association doivent réussir ou être annulées ensemble.
+- [ ] **Calculer l’ordre suivant.** Attribuer le prochain `NumOrdre` disponible pour le modèle.
+- [ ] **Ajouter un critère existant.** Proposer les critères qui ne sont pas encore associés au modèle.
+- [ ] **Retirer un critère du modèle.** Supprimer uniquement la liaison, sans supprimer un critère partagé.
+- [ ] **Modifier valeur maximale et ordre.** Respecter les contraintes de la base.
+- [ ] **Descriptions longues avec mise en forme.** Définir les balises HTML autorisées et filtrer le contenu.
+
+## Copie d’un modèle
+
+- [ ] **Implémenter `copierCriteres()`.** La fonction est appelée par le contrôleur mais n’est pas encore définie.
+- [ ] **Créer et copier dans une seule transaction.** Éviter de conserver un modèle vide si la copie échoue.
+- [ ] **Copier les associations.** Reprendre critères, valeurs maximales et numéros d’ordre avec le nouvel identifiant.
+- [ ] **Préserver le modèle source.** La copie ne doit modifier aucune ancienne donnée.
+- [ ] **Tester la copie complète.** Comparer la source et la copie.
+
+## Modification et historique
+
+- [ ] **Détecter si un modèle est utilisé.** Rechercher son identifiant dans les tables d’évaluation correspondant à sa nature.
+- [ ] **Autoriser la modification avant utilisation.**
+- [ ] **Protéger un modèle utilisé.** Le rendre non modifiable ou imposer sa duplication.
+- [ ] **Vérifier l’historique.** Les anciens modèles et critères restent consultables.
+
+## Simulation et tests finaux
+
+- [ ] **Simuler une grille sans enregistrer les notes.**
+- [ ] **Tester les erreurs de création.** Champs invalides, doublons, identifiant inexistant et indisponibilité de la base.
+- [x] **Tester un modèle vierge.** Création, sélection, affichage et message d’absence de critères.
+- [ ] **Tester un modèle complet.** Ajout, affichage ordonné, modification et retrait des critères.
+- [ ] **Tester la copie complète.**
+- [ ] **Corriger la journalisation.** Utiliser `error_log()` et ne pas afficher les détails PDO.
+
+## Écart à clarifier avec l’enseignant
+
+- [ ] **Gestion des sections.** Le sujet prévoit 1 à 3 sections et le scénario Portfolio demande 2 sections de 3 critères. La base actuelle ne permet plus d’associer un critère à une section.
+
+**Sources :** sujet R3.07 2026–2027, section 5.1, règles d’évolution et d’historique, scénario du 20 septembre et mise à jour SQL transmise par l’enseignant.

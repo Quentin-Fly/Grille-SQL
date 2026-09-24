@@ -8,6 +8,8 @@
     $afficherEdition = false;
     $erreurCreation = null;
     $succesCreation = null;
+    $modeleSelectionne = null;
+    $criteresModele = [];
     $valeursFormulaire = [
         'natureGrille' => '',
         'nomModule' => '',
