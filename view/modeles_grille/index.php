@@ -19,6 +19,10 @@
         <?php if ($afficherCreation) : ?>
             <?php require __DIR__ . "/formulaireCreation.php"; ?>
         <?php endif; ?>
+        <!-- Formulaire d'édition de modèle de grille -->
+        <?php if ($afficherEdition && $modeleSelectionne !== null) : ?>
+            <?php require __DIR__ . "/editionModele.php"; ?>
+        <?php endif; ?>
         <!-- Messages d'erreur et de succès -->
         <?php if ($erreurCreation !== null) : ?>
             <p role="alert"><?= htmlspecialchars($erreurCreation, ENT_QUOTES, 'UTF-8') ?></p>

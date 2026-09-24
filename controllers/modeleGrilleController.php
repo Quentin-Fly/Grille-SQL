@@ -5,6 +5,7 @@
 
     // Variable pour déterminer si l'affichage de la création d'un modèle est activé ou non
     $afficherCreation = false;
+    $afficherEdition = false;
     $erreurCreation = null;
     $succesCreation = null;
     $valeursFormulaire = [
@@ -16,30 +17,61 @@
     
     if (isset($_POST['selectionnerModele'])) 
     {
-        // Si le formulaire de création de modèle est soumis, activer l'affichage du formulaire
-        if (($_POST['modele'] ?? '') === 'nouveau')
+        $choixModele = $_POST['modele'] ?? '';
+
+        if ($choixModele === 'nouveau')
+        // Si l'utilisateur choisit de créer un nouveau modèle, on active l'affichage du formulaire de création
         {
             $afficherCreation = true;
-        } 
-        else 
+        }
+        else
+        // Si l'utilisateur choisit un modèle existant, on récupère les informations de ce modèle pour l'édition
         {
-            // Sinon, récupérer les informations du modèle sélectionné et les pré-remplir dans le formulaire de création
-            $idModeleEval = $_POST['modele'] ?? '';
-            $modele = getModeleParId($pdo, $idModeleEval);
-            if ($modele)
+            $idModeleEval = filter_var(
+                $choixModele,
+                FILTER_VALIDATE_INT, // Validation de l'ID du modèle sélectionné
+                ['options' => ['min_range' => 1]]
+            );
+
+            if ($idModeleEval === false)
             {
-                $valeursFormulaire['natureGrille'] = $modele['natureGrille'];
-                $valeursFormulaire['nomModule'] = $modele['nomModuleGrilleEvaluation'];
-                $valeursFormulaire['noteMax'] = $modele['noteMaxGrille'];
-                $valeursFormulaire['anneeDebut'] = $modele['anneeDebut'];
-                $afficherCreation = true;
+                $erreurCreation = "Le modèle sélectionné est invalide.";
             }
             else
             {
-                $erreurCreation = "Le modèle sélectionné n'existe pas.";
+                try
+                {
+                    $modeleSelectionne = getModeleParId(
+                        $pdo,
+                        $idModeleEval
+                    );
+
+                    if ($modeleSelectionne === false)
+                    {
+                        $erreurCreation =
+                            "Le modèle sélectionné n'existe pas.";
+                    }
+                    else
+                    {
+                        $afficherEdition = true;
+
+                        $criteresModele = getCriteresParIdModele(
+                            $pdo,
+                            $idModeleEval
+                        );
+                    }
+                }
+                catch (PDOException $e)
+                {
+                    error_log($e->getMessage());
+
+                    $erreurCreation =
+                        "Impossible de charger le modèle sélectionné.";
+                }
             }
         }
     }
+    
 
     if (isset($_POST['creerModele'])) 
     {

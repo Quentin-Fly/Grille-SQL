@@ -1,5 +1,4 @@
-    <?php
-
+<?php
     function getNaturesGrilleValides()
     {
         return ['ANGLAIS', 'RAPPORT', 'SOUTENANCE', 'STAGE', 'PORTFOLIO'];
@@ -81,5 +80,14 @@
         $stmt->execute([':natureGrille' => $natureGrille, ':anneeDebut' => $anneeDebut]);
 
         return $stmt->fetchColumn() > 0;
+    }
+    function getCritereParIdModele($pdo, $idModeleEval)
+    // Récupère les critères associés à un modèle spécifique
+    {
+        $sql = "SELECT * FROM criteresgrilleeval WHERE IdModeleEval = :ID";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([':ID' => $idModeleEval]);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 ?>
