@@ -64,22 +64,50 @@
         {
             try
             {
-                addModele($pdo, $natureGrille, $noteMax, $valeursFormulaire['nomModule'], $anneeDebut, $pointDepart);
-                $succesCreation = "Modèle créé avec succès.";
-                $afficherCreation = false;
-            }
-            catch (PDOException $e)
-            {
-                if ($e->getCode() === '23000' && ($e->errorInfo[1] ?? null) == 1062)
+                $nomModuleExiste = nomModeleExiste($pdo, $valeursFormulaire['nomModule']);
+                $natureExistePourAnnee = natureModeleExistePourAnnee($pdo, $natureGrille, $anneeDebut);
+
+                if ($nomModuleExiste)
+                // Vérifie si le nom du module existe déjà dans la base de données
                 {
-                    $erreurCreation = "Ce nom de module existe déjà. Choisis un autre nom.";
+                    $erreurCreation = "Le nom du module existe déjà. CHoisis un autre nom.";
+                }
+                elseif ($natureExistePourAnnee)
+                // Vérifie si la nature existe déjà dans la base de données pour l'année donnée
+                {
+                    $erreurCreation = "La nature existe déjà pour l'année donnée. Choisis une autre année ou une autre nature.";
                 }
                 else
                 {
-                    error_log($e->getMessage());
-                    $erreurCreation = "La création du modèle a échoué. Réessaie plus tard.";
+                    $idNouveauModele = addModele($pdo, $natureGrille, $noteMax, $valeursFormulaire['nomModule'], $anneeDebut);
+                    if ($pointDepart === 'copie' && $modeleSource)
+                    {
+                        // Copier les critères du modèle source vers le nouveau modèle
+                        copierCriteres($pdo, $modeleSource['IdModeleEval'], $idNouveauModele);
+                    }
+                    $succesCreation = "Le modèle a été créé avec succès.";
+                    // Réinitialiser le formulaire après la création réussie
+                    $valeursFormulaire = [
+                        'natureGrille' => '',
+                        'nomModule' => '',
+                        'noteMax' => '',
+                        'anneeDebut' => ''
+                    ];
                 }
             }
+            catch (PDOException $e)
+            {
+                $error_log($e->getMessage());
+
+                if ($e->getCode() === '23000' && ($e->errorInfo[1] ?? null) == 1062) // Code d'erreur pour violation de contrainte d'unicité
+                {
+                    $erreurCreation = "Un modèle possédant ces informations existe déjà.";
+                }
+                else
+                {
+                    $erreurCreation = "La création du modèle a échoué. Veuillez réessayer.";
+                }
+            }        
         }
     }
 
