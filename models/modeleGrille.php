@@ -81,10 +81,21 @@
 
         return $stmt->fetchColumn() > 0;
     }
-    function getCritereParIdModele($pdo, $idModeleEval)
+    function getCriteresParIdModele($pdo, $idModeleEval)
     // Récupère les critères associés à un modèle spécifique
     {
-        $sql = "SELECT * FROM criteresgrilleeval WHERE IdModeleEval = :ID";
+        $sql = "
+            SELECT
+                critereseval.IdCritere,
+                critereseval.descCourte,
+                critereseval.descLongue,
+                modelecontenircriteres.ValeurMaxCritereEVal,
+                modelecontenircriteres.NumOrdre
+            FROM modelecontenircriteres
+            JOIN critereseval
+                ON modelecontenircriteres.IdCritere = critereseval.IdCritere
+            WHERE modelecontenircriteres.IdModeleEval = :ID
+            ORDER BY modelecontenircriteres.NumOrdre ASC";
         $stmt = $pdo->prepare($sql);
         $stmt->execute([':ID' => $idModeleEval]);
 
