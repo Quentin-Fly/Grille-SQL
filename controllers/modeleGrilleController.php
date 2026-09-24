@@ -23,7 +23,21 @@
         } 
         else 
         {
-            // Sinon plus tard, vous pouvez ajouter ici le code pour gérer la sélection d'un modèle existant
+            // Sinon, récupérer les informations du modèle sélectionné et les pré-remplir dans le formulaire de création
+            $idModeleEval = $_POST['modele'] ?? '';
+            $modele = getModeleParId($pdo, $idModeleEval);
+            if ($modele)
+            {
+                $valeursFormulaire['natureGrille'] = $modele['natureGrille'];
+                $valeursFormulaire['nomModule'] = $modele['nomModuleGrilleEvaluation'];
+                $valeursFormulaire['noteMax'] = $modele['noteMaxGrille'];
+                $valeursFormulaire['anneeDebut'] = $modele['anneeDebut'];
+                $afficherCreation = true;
+            }
+            else
+            {
+                $erreurCreation = "Le modèle sélectionné n'existe pas.";
+            }
         }
     }
 
