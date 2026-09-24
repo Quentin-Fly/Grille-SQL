@@ -18,7 +18,7 @@
 
 ## Créer et modifier un modèle
 
-- [ ] **Enregistrer le nouveau modèle.** Vérifier la nature, l’année et la note maximale, puis utiliser une requête préparée. Dans `AnneesUniversitaires`, les colonnes sont `anneeDebut` et `fin`. Laisser `AUTO_INCREMENT` attribuer `IdModeleEval`. Fichiers : contrôleur, `models/ModeleGrille.php`.
+- [x] **Enregistrer le nouveau modèle.** Vérifier la nature, l’année et la note maximale, puis utiliser une requête préparée. Dans `AnneesUniversitaires`, les colonnes sont `anneeDebut` et `fin`. Laisser `AUTO_INCREMENT` attribuer `IdModeleEval`. Fichiers : contrôleur, `models/ModeleGrille.php`.
 - [ ] **Gérer les sections et les critères.** Permettre d’ajouter ou supprimer une section ; dans une section, retirer un critère, ajouter un critère déjà en base ou créer puis ajouter un critère. Pour les grilles spécifiques, respecter 1 à 3 sections, 1 à 5 critères par section et une note maximale d’au moins 0,5 par critère. Fichiers : vues d’édition, modèle SQL.
 - [ ] **Copier toute la structure.** Copier le modèle, ses sections, ses critères et les liaisons nécessaires. Les nouveaux enregistrements doivent être indépendants des anciens ; regrouper les insertions dans une transaction. Fichier : `models/ModeleGrille.php`.
 - [ ] **Modifier un modèle avant son utilisation.** Autoriser les mêmes changements tant que le modèle n’a pas servi à une évaluation. Vérifier les tables d’évaluation et, si nécessaire, les notes de critères avant toute modification. Fichiers : contrôleur, modèle SQL.
