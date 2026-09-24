@@ -11,6 +11,10 @@
     <body>
 
         <h1>Gestion des grilles</h1>
+        <?php 
+            // Inclusion du formulaire de sélection de modèle
+            require __DIR__ . "/selectModele.php";
+        ?>
         <!-- Formulaire de création de modèle de grille -->
         <?php if ($afficherCreation) : ?>
             <?php require __DIR__ . "/formulaireCreation.php"; ?>
