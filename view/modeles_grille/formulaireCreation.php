@@ -22,6 +22,7 @@
             <?php endforeach; ?>
         </select>
     </div>
+    <br>
 
     <div id="blocSource" style="display:none;">
         <label for="modeleSource">Modèle à copier :</label>
@@ -37,13 +38,16 @@
 
     <label for="nomModule">Nom du module :</label>
     <input type="text" name="nomModule" id="nomModule" maxlength="80" value="<?= htmlspecialchars($valeursFormulaire['nomModule'], ENT_QUOTES, 'UTF-8') ?>" required>
+    <br>
 
     <label for="noteMax">Note maximale :</label>
     <input type="number" name="noteMax" id="noteMax" step="0.5" min="0.5" value="<?= htmlspecialchars($valeursFormulaire['noteMax'], ENT_QUOTES, 'UTF-8') ?>" required>
+    <br>
 
     <label for="anneeDebut">Année de début :</label>
     <input type="number" name="anneeDebut" id="anneeDebut" value="<?= htmlspecialchars($valeursFormulaire['anneeDebut'], ENT_QUOTES, 'UTF-8') ?>" required>
-
+    <br>
+    
     <button type="submit" name="creerModele">Créer la grille</button>
 </form>
 
