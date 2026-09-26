@@ -9,6 +9,7 @@
     $erreurCreation = null;
     $succesCreation = null;
     $modeleSelectionne = null;
+    $afficherFormulaireCritere = false;
     $criteresModele = [];
     $valeursFormulaire = [
         'natureGrille' => '',
@@ -158,7 +159,41 @@
             }        
         }
     }
+    if (isset($_POST['afficherCreationCritere'])) 
+    {
+        // Récupérer l'ID du modèle sélectionné pour l'édition
+        $idModeleEval = filter_var($_POST['idModeleEval'] ?? ' ', FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+        // Vérifier si l'ID du modèle est valide
+        if ($idModeleEval === false)
+        {
+            $erreurCreation = "Le modèle sélectionné est invalide.";
+        }
+        else
+        {
+            $modeleSelectionne = getModeleParId($pdo, $idModeleEval);
+            if ($modeleSelectionne === false)
+            {
+                $erreurCreation = "Le modèle sélectionné n'existe pas.";
+            }
+            else
+            {
+                $criteresModele = getCriteresParIdModele($pdo, $idModeleEval);
+                if ($criteresModele === false)
+                {
+                    $erreurCreation = "Le modèle sélectionné n'existe pas.";
+                }
+                else
+                {
+                    // Afficher le formulaire de création de critère pour le modèle sélectionné
+                    $afficherEdition = true;
+                    $afficherFormulaireCritere = true;
+                }
+            }
+           
+        }
+    }
 
     $listModele = getAllModele($pdo);
     require __DIR__ . "/../view/modeles_grille/index.php";
+
 ?>

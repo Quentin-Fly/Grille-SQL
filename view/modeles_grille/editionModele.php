@@ -21,15 +21,15 @@
 <?php endif; ?>
 <!-- Formulaire de proposition de création de critere -->
 <form method="post" action="index.php">
-    <input type="hidden" name="idModeleEval" value="<?php echo (int) $modeleSelectionne['idModeleGrilleEvaluation']; ?>">
+    <input type="hidden" name="idModeleEval" value="<?php echo (int) $modeleSelectionne['IdModeleEval']; ?>">
 
     <button type="submit" name="afficherCreationCritere"> Nouveau critère d'évaluation </button>
 </form>
 <?php if ($afficherFormulaireCritere) : ?>
     <h3> Créer un nouveau critère d'évaluation </h3>
     <!-- Formulaire pour créer un nouveau critère -->
-    <form method="post" action="index.php>
-        <input type="hidden" name="idModele" value="<?php echo (int) $modeleSelectionne['IdModeleEval']; ?>">
+    <form method="post" action="index.php">
+        <input type="hidden" name="idModeleEval" value="<?php echo (int) $modeleSelectionne['IdModeleEval']; ?>">
     
         <!-- Description courte (100 caractères max et obligatoire) -->
         <label for="descCourteCritere">Description courte :</label>
@@ -45,7 +45,7 @@
         <label for="valeurMaxCritere">Valeur maximale :</label>
         <input type="number" id="valeurMaxCritere" name="valeurMaxCritere" min="0.5" step="0.5" required>
         <br>
-    
-        <input type="submit" value="Créer le critère">
+
+        <button type="submit" name="creerCritere"> Créer le critère d'évaluation </button>
     </form>
 <?php endif; ?>
