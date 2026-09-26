@@ -75,7 +75,6 @@
         }
     }
     
-
     if (isset($_POST['creerModele'])) 
     {
         $afficherCreation = true;
@@ -151,7 +150,7 @@
 
                     // Ne pas encore ouvrir le formulaire de création de critère, attendre que l'utilisateur clique sur "Ajouter un critère"
                     $afficherFormulaireCritere = false;
-                    
+            
                 }
             }
             catch (PDOException $e)
@@ -188,21 +187,93 @@
             else
             {
                 $criteresModele = getCriteresParIdModele($pdo, $idModeleEval);
-                if ($criteresModele === false)
-                {
-                    $erreurCreation = "Le modèle sélectionné n'existe pas.";
-                }
-                else
-                {
-                    // Afficher le formulaire de création de critère pour le modèle sélectionné
-                    $afficherEdition = true;
-                    $afficherFormulaireCritere = true;
-                }
+                // Afficher le formulaire de création de critère pour le modèle sélectionné
+                $afficherEdition = true;
+                $afficherFormulaireCritere = true;
             }
            
         }
     }
+    // Gestion de la création d'un critère pour un modèle existant
+    if (isset($_POST['creerCritere'])) 
+    {
+        $idModeleEval = filter_var($_POST['idModeleEval'] ?? '', FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+        $descCourteCritere = trim((string) ($_POST['descCourteCritere'] ?? ''));
+        $descLongueCritere = trim((string) ($_POST['descLongueCritere'] ?? ''));
+        $valeursMaxCritere = filter_var($_POST['valeurMaxCritere'] ?? '', FILTER_VALIDATE_FLOAT);
+        
+        $erreurCritere = [];
 
+        if ($idModeleEval === false)
+        {
+            $erreurCritere[] = "Modèle invalide.";
+        }
+        if ($descCourteCritere === '' || mb_strlen($descCourteCritere) > 100)
+        {
+            $erreurCritere[] = "La description courte est obligatoire et doit contenir au maximum 100 caractères.";
+        }
+        if (mb_strlen($descLongueCritere) > 500)
+        {
+            $erreurCritere[] = "La description longue doit contenir au maximum 500 caractères.";
+        }
+        if ($valeursMaxCritere === false)
+        {
+            $erreurCritere[] = "La valeur maximale doit être un nombre.";
+        }
+        else if ($valeursMaxCritere < 0.5)
+        {
+            $erreurCritere[] = "La valeur maximale doit être supérieure ou égale à 0,5.";
+        }
+        if (empty($erreurCritere))
+        {
+            try
+            {
+                $idNouveauCritere = addCritere($pdo, $idModeleEval, $descCourteCritere, $descLongueCritere, $valeursMaxCritere);
+                $succesCreation = "Le critère a été créé avec succès.";
+                $criteresModele = getCriteresParIdModele($pdo, $idModeleEval);
+                // Réinitialiser le formulaire après la création réussie
+                $modeleSelectionne = getModeleParId($pdo, $idModeleEval);
+                $afficherFormulaireCritere = false;
+                $afficherEdition = true;
+            }
+            catch (PDOException $e)
+            {
+                error_log($e->getMessage());
+                if ($e->getCode() === '23000' && ($e->errorInfo[1] ?? null) == 1062) // Code d'erreur pour violation de contrainte d'unicité
+                {
+                    $erreurCritere[] = "Un critère possédant ces informations existe déjà.";
+                }
+                else
+                {
+                    $erreurCritere[] = "La création du critère a échoué. Veuillez réessayer.";
+                }
+            }
+        }
+        if (!empty($erreurCritere))
+        {
+            $erreurCreation = implode(" ", $erreurCritere);
+
+            // Conserver la grille et le formulaire visibles après l'erreur
+            if ($idModeleEval !== false)
+            {
+                $modeleSelectionne = getModeleParId(
+                    $pdo,
+                    $idModeleEval
+                );
+
+                if ($modeleSelectionne !== false)
+                {
+                    $criteresModele = getCriteresParIdModele(
+                        $pdo,
+                        $idModeleEval
+                    );
+
+                    $afficherEdition = true;
+                    $afficherFormulaireCritere = true;
+                }
+            }
+        }
+    }
     $listModele = getAllModele($pdo);
     require __DIR__ . "/../view/modeles_grille/index.php";
 
