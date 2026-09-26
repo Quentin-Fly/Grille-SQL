@@ -142,6 +142,16 @@
                         'noteMax' => '',
                         'anneeDebut' => ''
                     ];
+                    // Récupérer le nouveau modèle pour l'affichage
+                    $modeleSelectionne = getModeleParId($pdo, $idNouveauModele);
+                    $criteresModele = getCriteresParIdModele($pdo, $idNouveauModele);
+                    // Fermer le formulaire de création et ouvrir le formulaire d'édition pour le nouveau modèle
+                    $afficherCreation = false;
+                    $afficherEdition = true;
+
+                    // Ne pas encore ouvrir le formulaire de création de critère, attendre que l'utilisateur clique sur "Ajouter un critère"
+                    $afficherFormulaireCritere = false;
+                    
                 }
             }
             catch (PDOException $e)
