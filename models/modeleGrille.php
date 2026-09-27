@@ -101,4 +101,64 @@
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+    function addCritere($pdo, $idModeleEval, $descCourteCritere, $descLongueCritere, $valeurMaxCritere)
+    {
+        $pdo->beginTransaction();
+        try
+        {
+           // Creation du critère
+            $sql = "INSERT INTO CriteresEval (descCourte, descLongue) 
+                    VALUES (:descCourte, :descLongue)";
+
+            $stmt = $pdo->prepare($sql);
+            $stmt->bindParam(':descCourte', $descCourteCritere);
+            $stmt->bindParam(':descLongue', $descLongueCritere);
+
+            $stmt->execute();
+
+            // Identifiant créé automatiquement dans CriteresEval
+            $idCritereEval = $pdo->lastInsertId();            
+
+            // Trouver le prochain numé d'odre de ce modele
+            $sql = "SELECT COALESCE(MAX(NumOrdre), 0)
+                    FROM ModeleContenirCriteres
+                     WHERE IdModeleEval = :idModeleEval";
+
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute([':idModeleEval' => $idModeleEval]);
+
+            $ordreMaximum = (int) $stmt->fetchColumn();
+            $nouvelOrdre = $ordreMaximum + 1;
+
+            // Associer le nouveau critère au modèle
+
+            $sql = "INSERT INTO ModeleContenirCriteres (
+                                            IdCritere,
+                                            IdModeleEval,
+                                            ValeurMaxCritereEval,
+                                            NumOrdre
+                                            )
+                                VALUES (
+                                            :idCritere,
+                                            :idModeleEval,
+                                            :valeurMaxCritere,
+                                            :numOrdre
+                                        )";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute([
+                ':idCritere' => $idCritereEval,
+                ':idModeleEval' => $idModeleEval,
+                ':valeurMaxCritere' => $valeurMaxCritere,
+                ':numOrdre' => $nouvelOrdre
+                ]);
+            $pdo->commit();
+
+            return $idCritereEval;
+        }
+        catch (Throwable $e)
+        {
+            $pdo->rollBack();
+            throw $e;
+        }
+    }
 ?>

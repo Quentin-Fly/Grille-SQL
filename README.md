@@ -38,10 +38,10 @@
 
 ## Gestion des critères
 
-- [ ] **Créer un nouveau critère.** Enregistrer `descCourte` et `descLongue` dans `CriteresEval`.
-- [ ] **Associer le critère au modèle.** Enregistrer `IdCritere`, `IdModeleEval`, `ValeurMaxCritereEval` et `NumOrdre` dans `ModeleContenirCriteres`.
-- [ ] **Utiliser une transaction.** La création du critère et son association doivent réussir ou être annulées ensemble.
-- [ ] **Calculer l’ordre suivant.** Attribuer le prochain `NumOrdre` disponible pour le modèle.
+- [x] **Créer un nouveau critère.** Enregistrer `descCourte` et `descLongue` dans `CriteresEval`.
+- [x] **Associer le critère au modèle.** Enregistrer `IdCritere`, `IdModeleEval`, `ValeurMaxCritereEval` et `NumOrdre` dans `ModeleContenirCriteres`.
+- [x] **Utiliser une transaction.** La création du critère et son association doivent réussir ou être annulées ensemble.
+- [x] **Calculer l’ordre suivant.** Attribuer le prochain `NumOrdre` disponible pour le modèle.
 - [ ] **Ajouter un critère existant.** Proposer les critères qui ne sont pas encore associés au modèle.
 - [ ] **Retirer un critère du modèle.** Supprimer uniquement la liaison, sans supprimer un critère partagé.
 - [ ] **Modifier valeur maximale et ordre.** Respecter les contraintes de la base.
