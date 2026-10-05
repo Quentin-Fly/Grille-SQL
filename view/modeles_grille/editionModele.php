@@ -73,3 +73,17 @@
         <button type="submit" name="creerCritere">Créer le critère d'évaluation</button>
     </form>
 <?php endif; ?>
+<!-- Afficher le formualaire d'affectation d'un critère à un modèle : ce formulaire apparaît après le choix d'un critère existant. -->
+<?php if ($afficherFormulaireAssociation) : ?>
+    <h3>Affecter un critère existant au modèle</h3>
+    <form method="post" action="index.php">
+        <input type="hidden" name="idModeleEval" value="<?= (int) $modeleSelectionne['IdModeleEval'] ?>">
+        <input type="hidden" name="idCritere" value="<?= (int) $idCritereSelectionne ?>">
+
+        <label for="valeurMaxCritere">Valeur maximale :</label>
+        <input type="number" id="valeurMaxCritere" name="valeurMaxCritere" min="0.5" step="0.5" required>
+        <br>
+
+        <button type="submit" name="affecterCritere">Affecter le critère au modèle</button>
+    </form>
+<?php endif; ?>
