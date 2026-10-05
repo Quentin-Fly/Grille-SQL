@@ -181,47 +181,68 @@
         }
         else
         {
-            $criteresModele = getCriteresParIdModele($pdo, $idModeleEval);
-            $afficherEdition = true;
-
-            $choixCritere = $_POST['critere'] ?? '';
-
-            if ($choixCritere === 'nouveau') 
+            try
             {
-                $afficherFormulaireCritere = true;
-            } 
-            else 
-            {
-                $idCritereSelectionne = filter_var($choixCritere, FILTER_VALIDATE_INT,['options' => ['min_range' => 1]]);              
+                // Chaque clic recharge la page : retrouver le modèle avec l'identifiant du formulaire.
+                $modeleSelectionne = getModeleParId($pdo, $idModeleEval);
 
-                if ($idCritereSelectionne === false) 
+                if ($modeleSelectionne === false)
                 {
-                    $erreurCreation = "Le critère sélectionné est invalide.";
-                } 
-                else 
+                    $erreurCreation = "Le modèle sélectionné n'existe pas.";
+                }
+                else
                 {
-                    $criteresDisponibles = getCriteresDisponibles($pdo, $idModeleEval);
-                    $critereDisponible = false;
-
-                    foreach ($criteresDisponibles as $critere) 
+                    $criteresModele = getCriteresParIdModele($pdo, $idModeleEval);
+                    $afficherEdition = true;
+        
+                    $choixCritere = $_POST['critere'] ?? '';
+        
+                    if ($choixCritere === 'nouveau') 
                     {
-                        if ((int) $critere['IdCritere'] === $idCritereSelectionne) 
-                        {
-                            $critereDisponible = true;
-                            break;
-                        }
-                    }
-
-                    if ($critereDisponible) 
-                    {
-                        $afficherFormulaireAssociation = true;
+                        $afficherFormulaireCritere = true;
                     } 
                     else 
                     {
-                        $erreurCreation = "Ce critère n'existe pas ou est déjà associé au modèle.";
-                    }
-                }
-            } 
+                        $idCritereSelectionne = filter_var($choixCritere, FILTER_VALIDATE_INT,['options' => ['min_range' => 1]]);              
+        
+                        if ($idCritereSelectionne === false) 
+                        {
+                            $erreurCreation = "Le critère sélectionné est invalide.";
+                        } 
+                        else 
+                        {
+                            $criteresDisponibles = getCriteresDisponibles($pdo, $idModeleEval);
+                            $critereDisponible = false;
+        
+                            foreach ($criteresDisponibles as $critere) 
+                            {
+                                if ((int) $critere['IdCritere'] === $idCritereSelectionne) 
+                                {
+                                    $critereDisponible = true;
+                                    break;
+                                }
+                            }
+        
+                            if ($critereDisponible) 
+                            {
+                                $afficherFormulaireAssociation = true;
+                            } 
+                            else 
+                            {
+                                $erreurCreation = "Ce critère n'existe pas ou est déjà associé au modèle.";
+                            }
+                        }
+                    } 
+                        }
+            }
+            catch (PDOException $e)
+            {
+                error_log($e->getMessage());
+                $afficherEdition = false;
+                $afficherFormulaireCritere = false;
+                $afficherFormulaireAssociation = false;
+                $erreurCreation = "Impossible de charger le modèle ou les critères disponibles.";
+            }
         }
     }
     // Gestion de la création d'un critère pour un modèle existant
@@ -309,7 +330,7 @@
 
     if ($modeleSelectionne)
     {
-        $listCritere = getCriteresParIdModele($pdo, $modeleSelectionne['IdModeleEval']);
+        $listCritere = getCriteresDisponibles($pdo, $modeleSelectionne['IdModeleEval']);
     }
 
     require __DIR__ . "/../view/modeles_grille/index.php";

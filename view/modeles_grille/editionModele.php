@@ -37,32 +37,39 @@
         </tbody>
     </table>
 <?php endif; ?>
-<!-- Formulaire de proposition de création de critere -->
+<!-- Choisir un critère : ce formulaire reste visible pendant l'édition du modèle. -->
 <form method="post" action="index.php">
-    <input type="hidden" name="idModeleEval" value="<?php echo (int) $modeleSelectionne['IdModeleEval']; ?>">
-
-    <button type="submit" name="afficherCreationCritere"> Nouveau critère d'évaluation </button>
+    <input type="hidden" name="idModeleEval" value="<?= (int) $modeleSelectionne['IdModeleEval'] ?>">
+    <label for="critere">Critère :</label>
+    <select name="critere" id="critere">
+        <option value="nouveau">Créer un nouveau critère</option>
+        <?php foreach ($listCritere as $critere) : ?>
+            <option value="<?= (int) $critere['IdCritere'] ?>">
+                <?= htmlspecialchars($critere['descCourte'], ENT_QUOTES, 'UTF-8') ?>
+            </option>
+        <?php endforeach; ?>
+    </select>
+    <button type="submit" name="selectionnerCritere">Sélectionner</button>
 </form>
+
+<!-- Saisir les informations : ce formulaire apparaît après le choix « nouveau ». -->
 <?php if ($afficherFormulaireCritere) : ?>
-    <h3> Créer un nouveau critère d'évaluation </h3>
-    <!-- Formulaire pour créer un nouveau critère -->
+    <h3>Créer un nouveau critère d'évaluation</h3>
     <form method="post" action="index.php">
-        <input type="hidden" name="idModeleEval"
-            value="<?= (int) $modeleSelectionne['IdModeleEval'] ?>">
+        <input type="hidden" name="idModeleEval" value="<?= (int) $modeleSelectionne['IdModeleEval'] ?>">
 
-        <label for="critere">Critère :</label>
-        <select name="critere" id="critere">
-            <option value="nouveau">Créer un nouveau critère</option>
+        <label for="descCourteCritere">Description courte :</label>
+        <input type="text" id="descCourteCritere" name="descCourteCritere" required maxlength="100">
+        <br>
 
-            <?php foreach ($listCritere as $critere) : ?>
-                <option value="<?= (int) $critere['IdCritere'] ?>">
-                    <?= htmlspecialchars($critere['descCourte'], ENT_QUOTES, 'UTF-8') ?>
-                </option>
-            <?php endforeach; ?>
-        </select>
+        <label for="descLongueCritere">Description longue :</label>
+        <input type="text" id="descLongueCritere" name="descLongueCritere" maxlength="500">
+        <br>
 
-        <button type="submit" name="selectionnerCritere">
-            Sélectionner
-        </button>
+        <label for="valeurMaxCritere">Valeur maximale :</label>
+        <input type="number" id="valeurMaxCritere" name="valeurMaxCritere" min="0.5" step="0.5" required>
+        <br>
+
+        <button type="submit" name="creerCritere">Créer le critère d'évaluation</button>
     </form>
 <?php endif; ?>
