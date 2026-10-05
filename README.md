@@ -64,8 +64,8 @@
 
 ## Simulation et tests finaux
 
-- [ ] **Simuler une grille sans enregistrer les notes.**
-- [ ] **Tester les erreurs de création.** Champs invalides, doublons, identifiant inexistant et indisponibilité de la base.
+- [x] **Simuler une grille sans enregistrer les notes.**
+- [x] **Tester les erreurs de création.** Champs invalides, doublons, identifiant inexistant et indisponibilité de la base.
 - [x] **Tester un modèle vierge.** Création, sélection, affichage et message d’absence de critères.
 - [ ] **Tester un modèle complet.** Ajout, affichage ordonné, modification et retrait des critères.
 - [ ] **Tester la copie complète.**

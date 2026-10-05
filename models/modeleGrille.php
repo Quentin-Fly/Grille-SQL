@@ -161,4 +161,20 @@
             throw $e;
         }
     }
+    function getCriteresDisponibles($pdo, $idModeleEval)
+    {
+        $sql = "
+            SELECT *
+            FROM critereseval
+            WHERE IdCritere NOT IN (
+                SELECT IdCritere
+                FROM modelecontenircriteres
+                WHERE IdModeleEval = :ID
+            )";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([':ID' => $idModeleEval]);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+  
 ?>
