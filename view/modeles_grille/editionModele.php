@@ -18,6 +18,24 @@
     <p>Aucun critère d'évaluation n'est défini pour ce modèle.</p>
 <?php else : ?>
     <!-- Affichage des critères d'évaluation -->
+    <table>
+        <thead>
+            <tr>
+                <th>Description courte</th>
+                <th>Description longue</th>
+                <th>Valeur maximale</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php foreach ($criteresModele as $critere) : ?>
+                <tr>
+                    <td><?php echo htmlspecialchars($critere['descCourte'], ENT_QUOTES, 'UTF-8'); ?></td>
+                    <td><?php echo htmlspecialchars($critere['descLongue'], ENT_QUOTES, 'UTF-8'); ?></td>
+                    <td><?php echo htmlspecialchars((string) $critere['ValeurMaxCritereEVal'], ENT_QUOTES, 'UTF-8'); ?></td>
+                </tr>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
 <?php endif; ?>
 <!-- Formulaire de proposition de création de critere -->
 <form method="post" action="index.php">
