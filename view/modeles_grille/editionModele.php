@@ -32,11 +32,7 @@
                 <tr>
                     <td>
                         <?php echo htmlspecialchars($critere['descCourte'], ENT_QUOTES, 'UTF-8'); ?>
-                        <form method="post" action="index.php" style="display: inline;">
-                            <input type="hidden" name="idModeleEval" value="<?= (int) $modeleSelectionne['IdModeleEval'] ?>">
-                            <input type="hidden" name="idCritere" value="<?= (int) $critere['IdCritere'] ?>">
-                            <button type="submit" name="modifierCritere">Modifier</button>
-                        </form>
+
                     </td>
                     <td>
                         <?php echo htmlspecialchars($critere['descLongue'], ENT_QUOTES, 'UTF-8'); ?>
@@ -44,17 +40,13 @@
                     </td>
 
                     <td>
-                        <form method="post" action="index.php" style="display: inline;">
-                            <input type="hidden" name="idModeleEval" value="<?= (int) $modeleSelectionne['IdModeleEval'] ?>">
-                            <input type="hidden" name="idCritere" value="<?= (int) $critere['IdCritere'] ?>">
-                            <input type="number" name="valeurMaxCritere" value="<?= htmlspecialchars((string) $critere['ValeurMaxCritereEVal'], ENT_QUOTES, 'UTF-8') ?>" min="0.5" step="0.5" required>
-                            <button type="submit" name="modifierValeurMax">Modifier</button>
-                        </form>
+                        <?= htmlspecialchars((string) $critere['ValeurMaxCritereEVal'], ENT_QUOTES, 'UTF-8') ?>
                     </td>
                     <td>
                         <form method="post" action="index.php" style="display: inline;">
                             <input type="hidden" name="idModeleEval" value="<?= (int) $modeleSelectionne['IdModeleEval'] ?>">
                             <input type="hidden" name="idCritere" value="<?= (int) $critere['IdCritere'] ?>">
+                            <button type="submit" name="modifierCritere">Modifier</button>
                             <button type="submit" name="retirerCritere" onclick="return confirm('Êtes-vous sûr de vouloir retirer ce critère ?');">Retirer</button>
                         </form>
                     </td>
@@ -115,7 +107,7 @@
 <?php endif; ?>
 <!-- Ce formulaire apparaît après un clic sur Modifier dans la colonne description. -->
 <?php if ($critereAModifier !== null) : ?>
-    <h3>Modifier les descriptions du critère</h3>
+    <h3>Modifier le critère</h3>
     <form method="post" action="index.php">
         <input type="hidden" name="idModeleEval" value="<?= (int) $modeleSelectionne['IdModeleEval'] ?>">
         <input type="hidden" name="idCritere" value="<?= (int) $critereAModifier['IdCritere'] ?>">
@@ -128,6 +120,9 @@
         <textarea id="descLongueModification" name="descLongueCritere" maxlength="500"><?= htmlspecialchars((string) ($critereAModifier['descLongue'] ?? ''), ENT_QUOTES, 'UTF-8') ?></textarea>
         <br>
 
-        <button type="submit" name="modifierDescriptionCritere">Enregistrer les descriptions</button>
+        <label for="pointsModification">Valeur maximale :</label>
+        <input type="number" id="pointsModification" name="valeurMaxCritere" value="<?= htmlspecialchars((string) $critereAModifier['ValeurMaxCritereEVal'], ENT_QUOTES, 'UTF-8') ?>" min="0.5" step="0.5" required>
+        <br>
+        <button type="submit" name="modifierDescriptionCritere">Enregistrer les modifications</button>
     </form>
 <?php endif; ?>

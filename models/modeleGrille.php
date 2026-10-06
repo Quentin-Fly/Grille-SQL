@@ -257,6 +257,7 @@
             ':idModeleEval' => $idModeleEval,
             ':idCritere' => $idCritereEval
         ]);
+            $pdo->commit();
         }
         catch (Throwable $e)
         {
@@ -265,7 +266,7 @@
         }
     }
     // Créer une nouvelle version du critère et remplacer seulement la liaison du modèle choisi.
-    function modifierDescriptionCritere($pdo, $idModeleEval, $idCritereEval, $descCourteCritere, $descLongueCritere)
+    function modifierDescriptionCritere($pdo, $idModeleEval, $idCritereEval, $descCourteCritere, $descLongueCritere, $valeurMaxCritere)
     {
         $pdo->beginTransaction();
         try
@@ -281,11 +282,12 @@
 
             // Conserver les points et l'ordre ; changer uniquement l'identifiant du critère.
             $sql = "UPDATE ModeleContenirCriteres
-                    SET IdCritere = :nouvelIdCritere
+                    SET IdCritere = :nouvelIdCritere, ValeurMaxCritereEval = :valeurMaxCritere
                     WHERE IdModeleEval = :idModeleEval AND IdCritere = :ancienIdCritere";
             $stmt = $pdo->prepare($sql);
             $stmt->execute([
                 ':nouvelIdCritere' => $nouvelleIdCritereEval,
+                ':valeurMaxCritere' => $valeurMaxCritere,
                 ':idModeleEval' => $idModeleEval,
                 ':ancienIdCritere' => $idCritereEval
             ]);

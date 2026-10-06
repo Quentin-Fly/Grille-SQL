@@ -532,6 +532,67 @@
         }
     }
 
+    // Enregistrer ensemble les deux descriptions et les points maximum.
+    if (isset($_POST['modifierDescriptionCritere']))
+    {
+        $idModeleEval = filter_var($_POST['idModeleEval'] ?? '', FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+        $idCritere = filter_var($_POST['idCritere'] ?? '', FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+        $descCourte = trim((string) ($_POST['descCourteCritere'] ?? ''));
+        $descLongue = trim((string) ($_POST['descLongueCritere'] ?? ''));
+        $points = filter_var($_POST['valeurMaxCritere'] ?? '', FILTER_VALIDATE_FLOAT);
+        try
+        {
+            if ($idModeleEval === false || $idCritere === false)
+            {
+                $erreurCreation = "Le modèle ou le critère est invalide.";
+            }
+            else
+            {
+                $modeleSelectionne = getModeleParId($pdo, $idModeleEval);
+                if (!$modeleSelectionne)
+                {
+                    $erreurCreation = "Le modèle n'existe pas.";
+                }
+                else
+                {
+                    $afficherEdition = true;
+                    $criteresModele = getCriteresParIdModele($pdo, $idModeleEval);
+                    foreach ($criteresModele as $critere)
+                    {
+                        if ((int) $critere['IdCritere'] === $idCritere)
+                        {
+                            $critereAModifier = $critere;
+                            break;
+                        }
+                    }
+                    if ($critereAModifier === null)
+                    {
+                        $erreurCreation = "Ce critère n'est pas associé à ce modèle.";
+                    }
+                    elseif ($descCourte === '' || mb_strlen($descCourte) > 100 || mb_strlen($descLongue) > 500 || $points === false || $points < 0.5)
+                    {
+                        $erreurCreation = "Description courte obligatoire (100 caractères maximum), description longue de 500 caractères maximum et points d'au moins 0,5.";
+                        $critereAModifier['descCourte'] = $descCourte;
+                        $critereAModifier['descLongue'] = $descLongue;
+                        $critereAModifier['ValeurMaxCritereEVal'] = $_POST['valeurMaxCritere'] ?? '';
+                    }
+                    else
+                    {
+                        modifierDescriptionCritere($pdo, $idModeleEval, $idCritere, $descCourte, $descLongue, $points);
+                        $critereAModifier = null;
+                        $criteresModele = getCriteresParIdModele($pdo, $idModeleEval);
+                        $succesCreation = "Le critère a été modifié avec succès.";
+                    }
+                }
+            }
+        }
+        catch (Throwable $e)
+        {
+            error_log($e->getMessage());
+            $erreurCreation = "La modification du critère a échoué.";
+        }
+    }
+
     // Charger les listes après les traitements pour afficher les données actualisées.
     $listModele = getAllModele($pdo);
     $listCritere = [];
