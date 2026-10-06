@@ -245,14 +245,64 @@
     // Fonction qui modifer la valeur maximale d'un critère associé à un modèle spécifique de la grille
     function modifierValeurMaxCritere($pdo, $idModeleEval, $idCritereEval, $valeurMaxCritere)
     {
-        $sql = "UPDATE ModeleContenirCriteres
-                SET ValeurMaxCritereEval = :valeurMaxCritere
-                WHERE IdModeleEval = :idModeleEval AND IdCritere = :idCritere";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute([
+        $pdo ->beginTransaction();
+        try
+        {
+            $sql = "UPDATE ModeleContenirCriteres
+                    SET ValeurMaxCritereEval = :valeurMaxCritere
+                    WHERE IdModeleEval = :idModeleEval AND IdCritere = :idCritere";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute([
             ':valeurMaxCritere' => $valeurMaxCritere,
             ':idModeleEval' => $idModeleEval,
             ':idCritere' => $idCritereEval
         ]);
+        }
+        catch (Throwable $e)
+        {
+            $pdo->rollBack();
+            throw $e;
+        }
+    }
+    // Créer une nouvelle version du critère et remplacer seulement la liaison du modèle choisi.
+    function modifierDescriptionCritere($pdo, $idModeleEval, $idCritereEval, $descCourteCritere, $descLongueCritere)
+    {
+        $pdo->beginTransaction();
+        try
+        {
+            $sql = "INSERT INTO CriteresEval (descCourte, descLongue)
+                    VALUES (:descCourte, :descLongue)";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute([
+                ':descCourte' => $descCourteCritere,
+                ':descLongue' => $descLongueCritere
+            ]);
+            $nouvelleIdCritereEval = $pdo->lastInsertId();
+
+            // Conserver les points et l'ordre ; changer uniquement l'identifiant du critère.
+            $sql = "UPDATE ModeleContenirCriteres
+                    SET IdCritere = :nouvelIdCritere
+                    WHERE IdModeleEval = :idModeleEval AND IdCritere = :ancienIdCritere";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute([
+                ':nouvelIdCritere' => $nouvelleIdCritereEval,
+                ':idModeleEval' => $idModeleEval,
+                ':ancienIdCritere' => $idCritereEval
+            ]);
+
+            // Annuler aussi la création si la liaison à remplacer n'existe pas.
+            if ($stmt->rowCount() !== 1)
+            {
+                throw new RuntimeException("Ce critère n'est pas associé à ce modèle.");
+            }
+
+            $pdo->commit();
+            return $nouvelleIdCritereEval;
+        }
+        catch (Throwable $e)
+        {
+            $pdo->rollBack();
+            throw $e;
+        }
     }
 ?>
