@@ -430,6 +430,61 @@
             }
         }
     }
+    if (isset($_POST['modifierValeurMax']))
+    {
+        $idModeleEval = filter_var($_POST['idModeleEval'] ?? '', FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+        $idCritere = filter_var($_POST['idCritere'] ?? '', FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+        $valeurMaxCritere = filter_var($_POST['valeurMaxCritere'] ?? '', FILTER_VALIDATE_FLOAT);
+
+        if ($idModeleEval === false || $idCritere === false || $valeurMaxCritere === false || $valeurMaxCritere < 0.5)
+        {
+            $erreurCreation = "Les informations fournies pour la modification sont invalides.";
+        }
+        else
+        {
+            try
+            {
+                // Retrouver le modèle après l'envoi du formulaire et vérifier son existence.
+                $modeleSelectionne = getModeleParId($pdo, $idModeleEval);
+                if ($modeleSelectionne === false)
+                {
+                    $erreurCreation = "Le modèle sélectionné n'existe pas.";
+                }
+                else
+                {
+                    $criteresModele = getCriteresParIdModele($pdo, $idModeleEval);
+                    $afficherEdition = true;
+                    $critereAssocie = false;
+
+                    // Vérifier que le critère appartient bien au modèle avant la modification.
+                    foreach ($criteresModele as $critere)
+                    {
+                        if ((int) $critere['IdCritere'] === $idCritere)
+                        {
+                            $critereAssocie = true;
+                            break;
+                        }
+                    }
+
+                    if (!$critereAssocie)
+                    {
+                        $erreurCreation = "Ce critère n'est pas associé à ce modèle.";
+                    }
+                    else
+                    {
+                        modifierValeurMaxCritere($pdo, $idModeleEval, $idCritere, $valeurMaxCritere);
+                        $succesCreation = "La valeur maximale du critère a été modifiée avec succès.";
+                        $criteresModele = getCriteresParIdModele($pdo, $idModeleEval);
+                    }
+                }
+            }
+            catch (PDOException $e)
+            {
+                error_log($e->getMessage());
+                $erreurCreation = "La modification de la valeur maximale a échoué. Veuillez réessayer.";
+            }
+        }
+    }
 
     // Charger les listes après les traitements pour afficher les données actualisées.
     $listModele = getAllModele($pdo);
