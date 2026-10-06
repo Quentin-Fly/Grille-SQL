@@ -242,4 +242,17 @@
             throw $e;
         }
     }
+    // Fonction qui modifer la valeur maximale d'un critère associé à un modèle spécifique de la grille
+    function modifierValeurMaxCritere($pdo, $idModeleEval, $idCritereEval, $valeurMaxCritere)
+    {
+        $sql = "UPDATE ModeleContenirCriteres
+                SET ValeurMaxCritereEval = :valeurMaxCritere
+                WHERE IdModeleEval = :idModeleEval AND IdCritere = :idCritere";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([
+            ':valeurMaxCritere' => $valeurMaxCritere,
+            ':idModeleEval' => $idModeleEval,
+            ':idCritere' => $idCritereEval
+        ]);
+    }
 ?>

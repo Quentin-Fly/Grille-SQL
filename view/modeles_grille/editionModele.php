@@ -24,6 +24,7 @@
                 <th>Description courte</th>
                 <th>Description longue</th>
                 <th>Valeur maximale</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -31,7 +32,14 @@
                 <tr>
                     <td><?php echo htmlspecialchars($critere['descCourte'], ENT_QUOTES, 'UTF-8'); ?></td>
                     <td><?php echo htmlspecialchars($critere['descLongue'], ENT_QUOTES, 'UTF-8'); ?></td>
-                    <td><?php echo htmlspecialchars((string) $critere['ValeurMaxCritereEVal'], ENT_QUOTES, 'UTF-8'); ?></td>
+                    <td>
+                        <form method="post" action="index.php" style="display: inline;">
+                            <input type="hidden" name="idModeleEval" value="<?= (int) $modeleSelectionne['IdModeleEval'] ?>">
+                            <input type="hidden" name="idCritere" value="<?= (int) $critere['IdCritere'] ?>">
+                            <input type="number" name="valeurMaxCritere" value="<?= htmlspecialchars((string) $critere['ValeurMaxCritereEVal'], ENT_QUOTES, 'UTF-8') ?>" min="0.5" step="0.5" required>
+                            <button type="submit" name="modifierValeurMax">Modifier</button>
+                        </form>
+                    </td>
                     <td>
                         <form method="post" action="index.php" style="display: inline;">
                             <input type="hidden" name="idModeleEval" value="<?= (int) $modeleSelectionne['IdModeleEval'] ?>">
