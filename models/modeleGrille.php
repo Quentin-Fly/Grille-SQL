@@ -161,6 +161,27 @@
             throw $e;
         }
     }
+    function retirerCritere($pdo, $idModeleEval, $idCritere)
+    {
+        $pdo->beginTransaction();
+        try
+        {
+            // Supprimer l'association du critère avec le modèle
+            $sql = "DELETE FROM ModeleContenirCriteres 
+                    WHERE IdModeleEval = :idModeleEval AND IdCritere = :idCritere";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute([':idModeleEval' => $idModeleEval, ':idCritere' => $idCritere]);
+
+            $liaisonRetiree = $stmt->rowCount() > 0;
+            $pdo->commit();
+            return $liaisonRetiree;
+        }
+        catch (Throwable $e)
+        {
+            $pdo->rollBack();
+            throw $e;
+        }
+    }
     function getCriteresDisponibles($pdo, $idModeleEval)
     {
         $sql = "

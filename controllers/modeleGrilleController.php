@@ -389,6 +389,47 @@
             }
         }
     }
+    if (isset($_POST['retirerCritere']))
+    {
+        $idModeleEval = filter_var($_POST['idModeleEval'] ?? '', FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+        $idCritere = filter_var($_POST['idCritere'] ?? '', FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+
+        if ($idModeleEval === false || $idCritere === false)
+        {
+            $erreurCreation = "Les informations fournies pour le retrait sont invalides.";
+        }
+        else
+        {
+            try
+            {
+                // Retrouver le modèle après l'envoi du formulaire et vérifier son existence.
+                $modeleSelectionne = getModeleParId($pdo, $idModeleEval);
+                if ($modeleSelectionne === false)
+                {
+                    $erreurCreation = "Le modèle sélectionné n'existe pas.";
+                }
+                else
+                {
+                    $liaisonRetiree = retirerCritere($pdo, $idModeleEval, $idCritere);
+                    if ($liaisonRetiree)
+                    {
+                        $succesCreation = "Le critère a été retiré avec succès du modèle.";
+                    }
+                    else
+                    {
+                        $erreurCreation = "Ce critère n'est pas associé à ce modèle.";
+                    }
+                    $criteresModele = getCriteresParIdModele($pdo, $idModeleEval);
+                    $afficherEdition = true;
+                }
+            }
+            catch (PDOException $e)
+            {
+                error_log($e->getMessage());
+                $erreurCreation = "Le retrait du critère a échoué. Veuillez réessayer.";
+            }
+        }
+    }
 
     // Charger les listes après les traitements pour afficher les données actualisées.
     $listModele = getAllModele($pdo);

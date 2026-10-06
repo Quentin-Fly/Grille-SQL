@@ -32,6 +32,13 @@
                     <td><?php echo htmlspecialchars($critere['descCourte'], ENT_QUOTES, 'UTF-8'); ?></td>
                     <td><?php echo htmlspecialchars($critere['descLongue'], ENT_QUOTES, 'UTF-8'); ?></td>
                     <td><?php echo htmlspecialchars((string) $critere['ValeurMaxCritereEVal'], ENT_QUOTES, 'UTF-8'); ?></td>
+                    <td>
+                        <form method="post" action="index.php" style="display: inline;">
+                            <input type="hidden" name="idModeleEval" value="<?= (int) $modeleSelectionne['IdModeleEval'] ?>">
+                            <input type="hidden" name="idCritere" value="<?= (int) $critere['IdCritere'] ?>">
+                            <button type="submit" name="retirerCritere" onclick="return confirm('Êtes-vous sûr de vouloir retirer ce critère ?');">Retirer</button>
+                        </form>
+                    </td>
                 </tr>
             <?php endforeach; ?>
         </tbody>
