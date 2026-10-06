@@ -176,5 +176,49 @@
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
-  
+    // Fonction qui associe le critère existant à un modèle spécifique de la grille
+    function associerCritere($pdo, $idModeleEval, $idCritereEval, $valeurMaxCritere)
+    {
+        $pdo ->beginTransaction();
+        try
+        {
+            // Trouver le prochain numé d'odre de ce modele
+            $sql = "SELECT COALESCE(MAX(NumOrdre), 0)
+                    FROM ModeleContenirCriteres
+                     WHERE IdModeleEval = :idModeleEval";
+
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute([':idModeleEval' => $idModeleEval]);
+
+            $ordreMaximum = (int) $stmt->fetchColumn();
+            $nouvelOrdre = $ordreMaximum + 1;
+
+            // Associer le critère existant au modèle
+            $sql = "INSERT INTO ModeleContenirCriteres (
+                                            IdCritere,
+                                            IdModeleEval,
+                                            ValeurMaxCritereEval,
+                                            NumOrdre
+                                            )
+                                VALUES (
+                                            :idCritere,
+                                            :idModeleEval,
+                                            :valeurMaxCritere,
+                                            :numOrdre
+                                        )";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute([
+                ':idCritere' => $idCritereEval,
+                ':idModeleEval' => $idModeleEval,
+                ':valeurMaxCritere' => $valeurMaxCritere,
+                ':numOrdre' => $nouvelOrdre
+                ]);
+            $pdo->commit();
+        }
+        catch (Throwable $e)
+        {
+            $pdo->rollBack();
+            throw $e;
+        }
+    }
 ?>
