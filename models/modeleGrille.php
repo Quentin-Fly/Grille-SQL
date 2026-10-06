@@ -18,7 +18,11 @@
 
     function addModele($pdo, $natureGrille, $noteMaxGrille, $nomModuleGrilleEvaluation, $anneeDebut)
   {
-        $pdo->beginTransaction();
+        $gereTransaction = !$pdo->inTransaction();
+        if ($gereTransaction)
+        {
+            $pdo->beginTransaction();
+        }
         try
         {
             $sql = "SELECT anneeDebut FROM anneesuniversitaires WHERE anneeDebut = :anneeDebut";
@@ -46,12 +50,18 @@
             $stmt->execute();
             $idNouveauModele = $pdo->lastInsertId();
             
-            $pdo->commit();
+            if ($gereTransaction)
+            {
+                $pdo->commit();
+            }
             return $idNouveauModele;
         }
         catch (Throwable $e)
         {
-            $pdo->rollBack();
+            if ($gereTransaction && $pdo->inTransaction())
+            {
+                $pdo->rollBack();
+            }
             throw $e;
         }
     }
@@ -304,6 +314,44 @@
         catch (Throwable $e)
         {
             $pdo->rollBack();
+            throw $e;
+        }
+    }
+    // Créer le modèle et copier ses associations dans une seule transaction.
+    function copierModele($pdo, $idModeleSource, $natureGrille, $noteMaxGrille, $nomModuleGrilleEvaluation, $anneeDebut)
+    {
+        $pdo->beginTransaction();
+        try
+        {
+            $modeleSource = getModeleParId($pdo, $idModeleSource);
+            if ($modeleSource === false)
+            {
+                throw new RuntimeException("Le modèle source n'existe pas.");
+            }
+
+            $idNouveauModele = addModele($pdo, $natureGrille, $noteMaxGrille, $nomModuleGrilleEvaluation, $anneeDebut);
+
+            // Partager les critères, en conservant exactement les points et les numéros d'ordre.
+            $sql = "INSERT INTO ModeleContenirCriteres
+                        (IdCritere, IdModeleEval, ValeurMaxCritereEval, NumOrdre)
+                    SELECT IdCritere, :idNouveauModele, ValeurMaxCritereEval, NumOrdre
+                    FROM ModeleContenirCriteres
+                    WHERE IdModeleEval = :idModeleSource";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute([
+                ':idNouveauModele' => $idNouveauModele,
+                ':idModeleSource' => $idModeleSource
+            ]);
+
+            $pdo->commit();
+            return $idNouveauModele;
+        }
+        catch (Throwable $e)
+        {
+            if ($pdo->inTransaction())
+            {
+                $pdo->rollBack();
+            }
             throw $e;
         }
     }

@@ -130,11 +130,13 @@
                 }
                 else
                 {
-                    $idNouveauModele = addModele($pdo, $natureGrille, $noteMax, $valeursFormulaire['nomModule'], $anneeDebut);
                     if ($pointDepart === 'copie' && $modeleSource)
                     {
-                        // Copier les critères du modèle source vers le nouveau modèle
-                        copierCriteres($pdo, $modeleSource['IdModeleEval'], $idNouveauModele);
+                        $idNouveauModele = copierModele($pdo, $modeleSource['IdModeleEval'], $natureGrille, $noteMax, $valeursFormulaire['nomModule'], $anneeDebut);
+                    }
+                    else
+                    {
+                        $idNouveauModele = addModele($pdo, $natureGrille, $noteMax, $valeursFormulaire['nomModule'], $anneeDebut);
                     }
                     $succesCreation = "Le modèle a été créé avec succès.";
                     // Réinitialiser le formulaire après la création réussie
@@ -158,7 +160,7 @@
             }
             catch (PDOException $e)
             {
-                $error_log($e->getMessage());
+                error_log($e->getMessage());
 
                 if ($e->getCode() === '23000' && ($e->errorInfo[1] ?? null) == 1062) // Code d'erreur pour violation de contrainte d'unicité
                 {
