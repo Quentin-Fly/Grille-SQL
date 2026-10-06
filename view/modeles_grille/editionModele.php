@@ -30,8 +30,19 @@
         <tbody>
             <?php foreach ($criteresModele as $critere) : ?>
                 <tr>
-                    <td><?php echo htmlspecialchars($critere['descCourte'], ENT_QUOTES, 'UTF-8'); ?></td>
-                    <td><?php echo htmlspecialchars($critere['descLongue'], ENT_QUOTES, 'UTF-8'); ?></td>
+                    <td>
+                        <?php echo htmlspecialchars($critere['descCourte'], ENT_QUOTES, 'UTF-8'); ?>
+                        <form method="post" action="index.php" style="display: inline;">
+                            <input type="hidden" name="idModeleEval" value="<?= (int) $modeleSelectionne['IdModeleEval'] ?>">
+                            <input type="hidden" name="idCritere" value="<?= (int) $critere['IdCritere'] ?>">
+                            <button type="submit" name="modifierCritere">Modifier</button>
+                        </form>
+                    </td>
+                    <td>
+                        <?php echo htmlspecialchars($critere['descLongue'], ENT_QUOTES, 'UTF-8'); ?>
+
+                    </td>
+
                     <td>
                         <form method="post" action="index.php" style="display: inline;">
                             <input type="hidden" name="idModeleEval" value="<?= (int) $modeleSelectionne['IdModeleEval'] ?>">
@@ -100,5 +111,23 @@
         <br>
 
         <button type="submit" name="affecterCritere">Affecter le critère au modèle</button>
+    </form>
+<?php endif; ?>
+<!-- Ce formulaire apparaît après un clic sur Modifier dans la colonne description. -->
+<?php if ($critereAModifier !== null) : ?>
+    <h3>Modifier les descriptions du critère</h3>
+    <form method="post" action="index.php">
+        <input type="hidden" name="idModeleEval" value="<?= (int) $modeleSelectionne['IdModeleEval'] ?>">
+        <input type="hidden" name="idCritere" value="<?= (int) $critereAModifier['IdCritere'] ?>">
+
+        <label for="descCourteModification">Description courte :</label>
+        <input type="text" id="descCourteModification" name="descCourteCritere" value="<?= htmlspecialchars((string) $critereAModifier['descCourte'], ENT_QUOTES, 'UTF-8') ?>" maxlength="100" required>
+        <br>
+
+        <label for="descLongueModification">Description longue :</label>
+        <textarea id="descLongueModification" name="descLongueCritere" maxlength="500"><?= htmlspecialchars((string) ($critereAModifier['descLongue'] ?? ''), ENT_QUOTES, 'UTF-8') ?></textarea>
+        <br>
+
+        <button type="submit" name="modifierDescriptionCritere">Enregistrer les descriptions</button>
     </form>
 <?php endif; ?>

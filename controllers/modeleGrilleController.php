@@ -13,6 +13,7 @@
     $afficherFormulaireAssociation = false;
     $idCritereSelectionne = null;
     $criteresModele = [];
+    $critereAModifier = null;
     $valeursFormulaire = [
         'natureGrille' => '',
         'nomModule' => '',
@@ -482,6 +483,51 @@
             {
                 error_log($e->getMessage());
                 $erreurCreation = "La modification de la valeur maximale a échoué. Veuillez réessayer.";
+            }
+        }
+    }
+    
+
+    // Ouvrir le formulaire de descriptions sans modifier les données.
+    if (isset($_POST['modifierCritere']))
+    {
+        $idModeleEval = filter_var($_POST['idModeleEval'] ?? '', FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+        $idCritere = filter_var($_POST['idCritere'] ?? '', FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+        if ($idModeleEval === false || $idCritere === false)
+        {
+            $erreurCreation = "Le modèle ou le critère sélectionné est invalide.";
+        }
+        else
+        {
+            try
+            {
+                $modeleSelectionne = getModeleParId($pdo, $idModeleEval);
+                if ($modeleSelectionne === false)
+                {
+                    $erreurCreation = "Le modèle sélectionné n'existe pas.";
+                }
+                else
+                {
+                    $criteresModele = getCriteresParIdModele($pdo, $idModeleEval);
+                    $afficherEdition = true;
+                    foreach ($criteresModele as $critere)
+                    {
+                        if ((int) $critere['IdCritere'] === $idCritere)
+                        {
+                            $critereAModifier = $critere;
+                            break;
+                        }
+                    }
+                    if ($critereAModifier === null)
+                    {
+                        $erreurCreation = "Ce critère n'est pas associé à ce modèle.";
+                    }
+                }
+            }
+            catch (PDOException $e)
+            {
+                error_log($e->getMessage());
+                $erreurCreation = "Impossible de charger le critère à modifier.";
             }
         }
     }
