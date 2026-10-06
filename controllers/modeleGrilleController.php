@@ -325,9 +325,74 @@
             }
         }
     }
+    if (isset($_POST['affecterCritere']))
+    {
+        $idModeleEval = filter_var($_POST['idModeleEval'] ?? '', FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+        $idCritere = filter_var($_POST['idCritere'] ?? '', FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+        $valeurMaxCritere = filter_var($_POST['valeurMaxCritere'] ?? '', FILTER_VALIDATE_FLOAT);
+
+        if ($idModeleEval === false || $idCritere === false || $valeurMaxCritere === false || $valeurMaxCritere < 0.5)
+        {
+            $erreurCreation = "Les informations fournies pour l'association sont invalides.";
+        }
+        else
+        {
+            try
+            {
+                // Retrouver le modèle après l'envoi du formulaire et vérifier son existence.
+                $modeleSelectionne = getModeleParId($pdo, $idModeleEval);
+                if ($modeleSelectionne === false)
+                {
+                    $erreurCreation = "Le modèle sélectionné n'existe pas.";
+                }
+                else
+                {
+                    $afficherEdition = true;
+                    $criteresModele = getCriteresParIdModele($pdo, $idModeleEval);
+
+                    // La liste disponible exclut les critères inexistants ou déjà associés.
+                    $criteresDisponibles = getCriteresDisponibles($pdo, $idModeleEval);
+                    $critereDisponible = false;
+                    foreach ($criteresDisponibles as $critere)
+                    {
+                        if ((int) $critere['IdCritere'] === $idCritere)
+                        {
+                            $critereDisponible = true;
+                            break;
+                        }
+                    }
+
+                    if (!$critereDisponible)
+                    {
+                        $erreurCreation = "Ce critère n'existe pas ou est déjà associé au modèle.";
+                    }
+                    else
+                    {
+                        associerCritere($pdo, $idModeleEval, $idCritere, $valeurMaxCritere);
+                        $succesCreation = "Le critère a été associé avec succès au modèle.";
+                        $criteresModele = getCriteresParIdModele($pdo, $idModeleEval);
+                        $afficherFormulaireAssociation = false;
+                    }
+                }
+            }
+            catch (PDOException $e)
+            {
+                error_log($e->getMessage());
+                if ($e->getCode() === '23000' && ($e->errorInfo[1] ?? null) == 1062)
+                {
+                    $erreurCreation = "Ce critère est déjà associé à ce modèle.";
+                }
+                else
+                {
+                    $erreurCreation = "L'association du critère a échoué. Veuillez réessayer.";
+                }
+            }
+        }
+    }
+
+    // Charger les listes après les traitements pour afficher les données actualisées.
     $listModele = getAllModele($pdo);
     $listCritere = [];
-
     if ($modeleSelectionne)
     {
         $listCritere = getCriteresDisponibles($pdo, $modeleSelectionne['IdModeleEval']);
