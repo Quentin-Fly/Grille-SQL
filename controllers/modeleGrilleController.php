@@ -14,6 +14,8 @@
     $idCritereSelectionne = null;
     $criteresModele = [];
     $critereAModifier = null;
+    $pointDepart = 'vierge';
+    $idModeleSource = '';
     $valeursFormulaire = [
         'natureGrille' => '',
         'nomModule' => '',
@@ -88,12 +90,21 @@
         }
 
         $natureGrille = $valeursFormulaire['natureGrille'];
-        $idModeleSource = $_POST['modeleSource'] ?? '';
+        $idModeleSource = filter_var($_POST['modeleSource'] ?? '', FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
         $modeleSource = null;
-        if ($pointDepart === 'copie' && $idModeleSource !== '')
+        $erreurChargementSource = false;
+        if ($pointDepart === 'copie' && $idModeleSource !== false)
         {
-            $modeleSource = getModeleParId($pdo, $idModeleSource);
-            $natureGrille = $modeleSource['natureGrille'] ?? '';
+            try
+            {
+                $modeleSource = getModeleParId($pdo, $idModeleSource);
+                $natureGrille = $modeleSource['natureGrille'] ?? '';
+            }
+            catch (Throwable $e)
+            {
+                error_log($e->getMessage());
+                $erreurChargementSource = true;
+            }
         }
 
         $noteMax = filter_var($valeursFormulaire['noteMax'], FILTER_VALIDATE_FLOAT);
@@ -103,13 +114,13 @@
             || ($pointDepart === 'vierge' && !in_array($natureGrille, getNaturesGrilleValides(), true))
             || ($pointDepart === 'copie' && !$modeleSource)
             || $valeursFormulaire['nomModule'] === ''
-            || strlen($valeursFormulaire['nomModule']) > 80
+            || mb_strlen($valeursFormulaire['nomModule']) > 80
             || $noteMax === false || $noteMax < 0.5
             || $anneeDebut === false || $anneeDebut < 1 || $anneeDebut >= 9999)
         {
-            $erreurCreation = $pointDepart === 'copie'
+            $erreurCreation = $erreurChargementSource ? "Impossible de charger le modèle source." : ($pointDepart === 'copie'
                 ? "Vérifie le modèle source, le nom du module (80 caractères maximum), la note maximale et l'année."
-                : "Vérifie la nature, le nom du module (80 caractères maximum), la note maximale et l'année.";
+                : "Vérifie la nature, le nom du module (80 caractères maximum), la note maximale et l'année.");
         }
         else
         {
@@ -138,7 +149,7 @@
                     {
                         $idNouveauModele = addModele($pdo, $natureGrille, $noteMax, $valeursFormulaire['nomModule'], $anneeDebut);
                     }
-                    $succesCreation = "Le modèle a été créé avec succès.";
+                    $succesCreation = $pointDepart === 'copie' ? "Le modèle a été copié avec succès." : "Le modèle a été créé avec succès.";
                     // Réinitialiser le formulaire après la création réussie
                     $valeursFormulaire = [
                         'natureGrille' => '',
@@ -158,11 +169,11 @@
             
                 }
             }
-            catch (PDOException $e)
+            catch (Throwable $e)
             {
                 error_log($e->getMessage());
 
-                if ($e->getCode() === '23000' && ($e->errorInfo[1] ?? null) == 1062) // Code d'erreur pour violation de contrainte d'unicité
+                if ($e->getCode() === '23000' && (($e instanceof PDOException ? $e->errorInfo[1] : null) ?? null) == 1062) // Code d'erreur pour violation de contrainte d'unicité
                 {
                     $erreurCreation = "Un modèle possédant ces informations existe déjà.";
                 }

@@ -4,11 +4,11 @@
     <fieldset>
         <legend>Point de départ</legend>
         <label>
-            <input type="radio" name="pointDepart" value="vierge" checked onchange="toggleSourceModele()">
+            <input type="radio" name="pointDepart" value="vierge" <?= $pointDepart !== 'copie' ? 'checked' : '' ?> onchange="toggleSourceModele()">
             Structure vierge
         </label>
         <label>
-            <input type="radio" name="pointDepart" value="copie" onchange="toggleSourceModele()">
+            <input type="radio" name="pointDepart" value="copie" <?= $pointDepart === 'copie' ? 'checked' : '' ?> onchange="toggleSourceModele()">
             Copier un modèle existant
         </label>
     </fieldset>
@@ -29,7 +29,7 @@
         <select name="modeleSource" id="modeleSource">
             <option value="">Sélectionnez un modèle source</option>
             <?php foreach ($listModele as $modele) : ?>
-                <option value="<?= htmlspecialchars($modele['IdModeleEval'], ENT_QUOTES, 'UTF-8') ?>">
+                <option value="<?= (int) $modele['IdModeleEval'] ?>" <?= (int) $idModeleSource === (int) $modele['IdModeleEval'] ? 'selected' : '' ?>>
                     <?= htmlspecialchars($modele['natureGrille'] . ' - ' . $modele['nomModuleGrilleEvaluation'] . ' - ' . $modele['anneeDebut'], ENT_QUOTES, 'UTF-8') ?>
                 </option>
             <?php endforeach; ?>
@@ -61,4 +61,5 @@ function toggleSourceModele()
     document.getElementById('blocNature').style.display = copie ? 'none' : 'block';
     document.getElementById('natureGrille').required = !copie;
 }
+toggleSourceModele();
 </script>

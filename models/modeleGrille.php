@@ -329,7 +329,7 @@
                 throw new RuntimeException("Le modèle source n'existe pas.");
             }
 
-            $idNouveauModele = addModele($pdo, $natureGrille, $noteMaxGrille, $nomModuleGrilleEvaluation, $anneeDebut);
+            $idNouveauModele = addModele($pdo, $modeleSource['natureGrille'], $noteMaxGrille, $nomModuleGrilleEvaluation, $anneeDebut);
 
             // Partager les critères, en conservant exactement les points et les numéros d'ordre.
             $sql = "INSERT INTO ModeleContenirCriteres
@@ -354,5 +354,63 @@
             }
             throw $e;
         }
+    }
+    // Détecter une référence au modèle dans une évaluation, même sans notes saisies.
+    function modeleEstUtilise($pdo, $idModeleEval)
+    {
+        $sql = "SELECT 1 FROM EvalAnglais WHERE IdModeleEval = :idAnglais
+                UNION ALL
+                SELECT 1 FROM EvalRapport WHERE IdModeleEval = :idRapport
+                UNION ALL
+                SELECT 1 FROM EvalSoutenance WHERE IdModeleEval = :idSoutenance
+                UNION ALL
+                SELECT 1 FROM EvalStage WHERE IdModeleEval = :idStage
+                UNION ALL
+                SELECT 1 FROM EvalPortfolio WHERE IdModeleEval = :idPortfolio
+                LIMIT 1";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([
+            ':idAnglais' => $idModeleEval,
+            ':idRapport' => $idModeleEval,
+            ':idSoutenance' => $idModeleEval,
+            ':idStage' => $idModeleEval,
+            ':idPortfolio' => $idModeleEval
+        ]);
+
+        return $stmt->fetchColumn() !== false;
+    }
+    // Détecter les notes de critères via les évaluations qui référencent le modèle.
+    function modelePossedeNotes($pdo, $idModeleEval)
+    {
+        $sql = "SELECT 1 FROM EvalAnglais AS e
+                JOIN LesCriteresNotesAnglais AS n ON n.IdEvalAnglais = e.IdEvalAnglais
+                WHERE e.IdModeleEval = :idAnglais
+                UNION ALL
+                SELECT 1 FROM EvalRapport AS e
+                JOIN LesCriteresNotesRapport AS n ON n.IdEvalRapport = e.IdEvalRapport
+                WHERE e.IdModeleEval = :idRapport
+                UNION ALL
+                SELECT 1 FROM EvalSoutenance AS e
+                JOIN LesCriteresNotesSoutenance AS n ON n.IdEvalSoutenance = e.IdEvalSoutenance
+                WHERE e.IdModeleEval = :idSoutenance
+                UNION ALL
+                SELECT 1 FROM EvalStage AS e
+                JOIN LesCriteresNotesStage AS n ON n.IdEvalStage = e.IdEvalStage
+                WHERE e.IdModeleEval = :idStage
+                UNION ALL
+                SELECT 1 FROM EvalPortfolio AS e
+                JOIN LesCriteresNotesPortFolio AS n ON n.IdEvalPortfolio = e.IdEvalPortfolio
+                WHERE e.IdModeleEval = :idPortfolio
+                LIMIT 1";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([
+            ':idAnglais' => $idModeleEval,
+            ':idRapport' => $idModeleEval,
+            ':idSoutenance' => $idModeleEval,
+            ':idStage' => $idModeleEval,
+            ':idPortfolio' => $idModeleEval
+        ]);
+
+        return $stmt->fetchColumn() !== false;
     }
 ?>
