@@ -1,12 +1,24 @@
-<?php foreach ($utilisateursBackOffice as $utilisateur) : ?>
-    <tr>
-        <td><?= htmlspecialchars($utilisateur['id_utilisateur']) ?></td>
-        <td><?= htmlspecialchars($utilisateur['nom_utilisateur']) ?></td>
-        <td><?= htmlspecialchars($utilisateur['prenom_utilisateur']) ?></td>
-        <td><?= htmlspecialchars($utilisateur['email_utilisateur']) ?></td>
-        <td><?= htmlspecialchars($utilisateur['role_utilisateur']) ?></td>
-        <td>
-            <a href="modifierUtilisateur.php?id=<?= $utilisateur['id_utilisateur'] ?>" class="btn btn-primary">Modifier</a>
-            <a href="supprimerUtilisateur.php?id=<?= $utilisateur['id_utilisateur'] ?>" class="btn btn-danger">Supprimer</a>
-        </td>
-    </tr>
+<table>
+    <thead>
+        <tr>
+            <th>Identifiant</th>
+            <th>Nom</th>
+            <th>Prénom</th>
+            <th>Mail</th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php if (empty($utilisateursBackOffice)) : ?>
+            <tr><td colspan="4">Aucun utilisateur.</td></tr>
+        <?php else : ?>
+            <?php foreach ($utilisateursBackOffice as $utilisateur) : ?>
+                <tr>
+                    <td><?= (int) $utilisateur['Identifiant'] ?></td>
+                    <td><?= htmlspecialchars($utilisateur['nom'], ENT_QUOTES, 'UTF-8') ?></td>
+                    <td><?= htmlspecialchars($utilisateur['prenom'], ENT_QUOTES, 'UTF-8') ?></td>
+                    <td><?= htmlspecialchars($utilisateur['mail'], ENT_QUOTES, 'UTF-8') ?></td>
+                </tr>
+            <?php endforeach; ?>
+        <?php endif; ?>
+    </tbody>
+</table>
