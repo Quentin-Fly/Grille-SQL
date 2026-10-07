@@ -4,7 +4,7 @@
     $host = "localhost";
     $username = "root";
     $password = "";
-    $database = "evaluationstages";
+    $database = "stagebdmerge";
 
     try
     {
