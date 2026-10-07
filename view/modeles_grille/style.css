@@ -1,0 +1,42 @@
+/* Style provisoire pour la démonstration. */
+* { box-sizing: border-box; }
+html { background: #f1f5f9; color: #1e293b; font-family: "Segoe UI", Arial, sans-serif; }
+body { max-width: 1120px; margin: 36px auto; padding: 28px; background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; box-shadow: 0 8px 28px #0f172a0a; }
+h1 { margin-top: 0; color: #0f172a; font-size: 1.9rem; }
+h2 { margin-top: 32px; padding-bottom: 12px; border-bottom: 2px solid #dbeafe; }
+h3 { margin-top: 28px; font-size: 1.1rem; }
+p { line-height: 1.6; }
+form { margin: 16px 0; }
+body > form { padding: 18px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; }
+label { display: inline-block; margin: 8px 12px 8px 0; font-weight: 600; }
+input, select, textarea, button { font: inherit; }
+input:not([type="hidden"]):not([type="radio"]), select, textarea { max-width: 100%; padding: 9px 11px; color: #1e293b; background: #fff; border: 1px solid #cbd5e1; border-radius: 7px; }
+input[type="text"], textarea { width: 380px; }
+input[type="number"] { width: 130px; }
+textarea { display: block; min-height: 110px; resize: vertical; }
+input[type="radio"] { accent-color: #2563eb; }
+:focus-visible { outline: 3px solid #93c5fd; outline-offset: 2px; }
+fieldset { border: 1px solid #cbd5e1; border-radius: 8px; padding: 12px 16px; }
+legend { font-weight: 600; padding: 0 6px; }
+button { padding: 9px 14px; margin: 4px 3px; border: 0; border-radius: 7px; background: #2563eb; color: #fff; font-weight: 600; cursor: pointer; }
+button:hover { background: #1d4ed8; }
+button[name="retirerCritere"] { color: #b91c1c; background: #fee2e2; }
+button[name="retirerCritere"]:hover { background: #fecaca; }
+table { width: 100%; margin: 18px 0; border-spacing: 0; border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden; }
+th, td { padding: 13px 15px; text-align: left; vertical-align: top; overflow-wrap: anywhere; }
+th { color: #475569; background: #f1f5f9; font-size: .9rem; }
+td { border-top: 1px solid #e2e8f0; }
+tbody tr:nth-child(even) { background: #fafcff; }
+tbody tr:hover { background: #eff6ff; }
+td:last-child { min-width: 190px; }
+td form { margin: 0; }
+[role="alert"], [role="status"] { padding: 13px 16px; border-radius: 8px; font-weight: 500; }
+[role="alert"] { color: #991b1b; background: #fef2f2; border: 1px solid #fecaca; }
+[role="status"] { color: #166534; background: #f0fdf4; border: 1px solid #bbf7d0; }
+@media (max-width: 720px) {
+    body { margin: 12px; padding: 18px; }
+    table { display: block; overflow-x: auto; }
+    th, td { padding: 10px; }
+    input[type="text"], textarea, select { width: 100%; }
+    h1 { font-size: 1.5rem; }
+}
