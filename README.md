@@ -1,78 +1,90 @@
 # Grille SQL — suivi de la section 5.1
 
-Mise à jour : 6 octobre 2026. Périmètre : définir et faire évoluer les modèles de grille, page 12 du sujet R3.07 2026–2027 ; règles de calcul et de conservation associées. La section 5.2 (ressources) est hors périmètre.
+Mise à jour : 7 octobre 2026. Périmètre : modèles de grille, section 5.1 du sujet R3.07 2026–2027. La section 5.2 sur les ressources est hors périmètre.
 
-**Légende :** `[x]` implémenté et vérifié par lecture du code ; `[ ]` restant. Les tests avec la base sont suivis séparément : présence du code et syntaxe valide ne prouvent pas un fonctionnement complet.
+## Bilan des tests du 7 octobre
 
-## Fonctionnalités implémentées
+**51 vérifications automatisées réussies**, sur MySQL/MariaDB local avec des tables temporaires isolées dans une connexion dédiée. Aucune donnée persistante de la base du projet n’a été modifiée. Les huit fichiers PHP passent la vérification de syntaxe.
 
-- [x] Connexion PDO et architecture MVC.
-- [x] Liste et sélection des modèles, validation de leur identifiant.
-- [x] Cinq natures : ANGLAIS, RAPPORT, SOUTENANCE, STAGE, PORTFOLIO.
-- [x] Création vierge : année recherchée/créée, identifiant automatique, transaction, validation des champs et messages de doublon.
-- [x] Affichage du modèle, des descriptions, des points et de l’état sans critère.
-- [x] Lecture des critères triée par NumOrdre et calcul du prochain ordre lors des ajouts.
-- [x] Création d’un nouveau critère et association transactionnelle au modèle.
-- [x] Sélection d’un critère existant parmi ceux encore disponibles, validation et association.
-- [x] Retrait de la liaison dans ModeleContenirCriteres uniquement ; critère conservé ; résultat contrôlé avec rowCount().
-- [x] Bouton Modifier à côté de Retirer, formulaire unique prérempli : description courte, description longue et points maximum.
-- [x] Validation côté serveur : identifiants positifs, appartenance au modèle, description courte obligatoire et limitée à 100 caractères, longue limitée à 500, points au moins égaux à 0,5.
-- [x] Modification regroupée dans une transaction : création d’une nouvelle version du critère et remplacement de la liaison ciblée avec les nouveaux points ; ordre et ancien critère conservés.
-- [x] Actualisation des listes après les opérations et affichage des messages.
+Les tests exécutent les fonctions réelles du modèle et les traitements réels du contrôleur, avec rendu des vues. Seuls le chargement de la connexion et le chemin des vues sont adaptés dans une copie de test du contrôleur. Les avertissements PHP sont traités comme des erreurs.
 
-La création d’une nouvelle version protège les autres modèles qui partagent le critère, mais ne protège pas encore le modèle courant s’il a déjà été utilisé pour des évaluations.
+### Parcours validés
 
-## Exigences de l’enseignant face au code actuel
+- [x] Création vierge, création de l’année et fermeture de transaction.
+- [x] Sélection et affichage d’une grille vide.
+- [x] Création de critères, affichage et échappement HTML.
+- [x] Copie MySQL : conservation des critères, points et numéros d’ordre, y compris un ordre avec des trous (1, 3).
+- [x] Conservation de la nature du modèle source.
+- [x] Ouverture du formulaire de modification.
+- [x] Modification regroupée des textes et points ; nouvelle version du critère, source intacte et ordre conservé.
+- [x] Retrait de la liaison sans supprimer le critère partagé.
+- [x] Retrait d’une liaison inexistante sans annoncer un faux succès.
+- [x] Association d’un critère existant et refus du doublon.
+- [x] Ancien traitement séparé des points : enregistrement et fermeture de transaction.
+- [x] Refus des identifiants invalides ou inexistants.
+- [x] Validation des descriptions : courte obligatoire, 100 caractères maximum, longue de 500 caractères maximum, accents compris.
+- [x] Refus des points invalides ou inférieurs à 0,5, sans écriture.
+- [x] Refus d’une source de copie inexistante ou invalide.
+- [x] Refus du doublon de nom et conservation du choix de copie dans le formulaire.
+- [x] Annulation complète de la copie sur erreur de création du modèle, y compris l’année créée.
+- [x] Annulation complète sur échec de copie des associations.
+- [x] Annulation de la nouvelle version du critère si la liaison à remplacer n’existe pas.
 
-| Demande de la section 5.1 | État | Reste à faire |
+### Protection validée
+
+- [x] Détection d’une référence dans chaque table actuelle : anglais, rapport, portfolio, soutenance tuteur et soutenance second enseignant.
+- [x] Pour chacun des cinq cas, une ligne de note NULL ne bloque pas ; une note de zéro bloque.
+- [x] Blocage de la création d’un critère lorsque le modèle possède des notes.
+- [x] Blocage de l’association d’un critère existant.
+- [x] Blocage du retrait.
+- [x] Blocage de la modification séparée des points.
+- [x] Blocage de la modification regroupée des textes et points.
+- [x] Pour ces refus : aucun changement dans les tables de travail, aucun message de succès et grille toujours affichée.
+- [x] Copie d’un modèle protégé autorisée ; la copie ne possède aucune note et peut être modifiée.
+
+### Portée et limites de la vérification
+
+- La base réelle et son schéma ont été inspectés en lecture seule. Les requêtes de détection corrigées y ont été vérifiées : les modèles RAPPORT 3 et 8 ne possèdent aucune note lors de l’inspection du 7 octobre.
+- Les tests d’écriture utilisent des tables temporaires reproduisant les tables de travail. Les clés étrangères de ces copies sont retirées et les tables d’évaluation sont réduites aux champs nécessaires : les relations avec étudiants, enseignants et salles ne sont donc pas validées par cette suite.
+- Il s’agit de tests serveur avec rendu HTML, pas d’une automatisation du navigateur : le clic réel, le JavaScript, la confirmation de retrait et l’apparence CSS restent à vérifier manuellement.
+- La disponibilité d’une connexion refusée ou d’un serveur arrêté n’a pas été testée.
+- Le cas STAGE n’est pas couvert : dans la base actuelle, EvalStage ne contient pas IdModeleEval et aucune table LesCriteresNotesStage n’existe. Ne pas présenter sa protection comme terminée.
+
+## Fonctionnalités présentes
+
+- [x] Connexion PDO, architecture MVC, sélection et consultation des modèles.
+- [x] Cinq natures de modèle : ANGLAIS, RAPPORT, SOUTENANCE, STAGE, PORTFOLIO.
+- [x] Création vierge avec validation et contrôle des doublons de nom et nature/année.
+- [x] Création et association des critères, ordre automatique.
+- [x] Ajout de critères existants depuis une liste filtrée.
+- [x] Retrait de la liaison uniquement, résultat contrôlé avec rowCount().
+- [x] Modification des descriptions et points via un formulaire unique, bouton Modifier à côté de Retirer.
+- [x] Copie avec copierModele(), INSERT ... SELECT et transaction commune avec addModele(). L’ancien appel à copierCriteres() a été remplacé.
+- [x] Détection des références et des notes selon le schéma réel, avec deux tables de soutenance.
+- [x] Protection des écritures côté contrôleur pour les modèles possédant des notes, hors limite STAGE.
+- [x] Style CSS provisoire.
+- [x] Correction de $error_log(...) en error_log(...).
+
+## Demandes de la section 5.1 et restant
+
+| Demande | État actuel | Reste |
 |---|---|---|
-| Créer une structure vierge et préciser sa nature | Implémenté | Compléter les tests |
-| Copier une structure de l’année écoulée | Choix dans la vue, copie non fonctionnelle | Définir copierCriteres() et transaction commune création/copie |
-| Ajouter et supprimer des sections | Absent du code actuel | Clarifier le schéma actualisé avec l’enseignant, puis adapter si nécessaire |
-| Ajouter des critères existants ou nouveaux | Implémenté | Tester complètement l’association |
-| Retirer des critères | Implémenté | Tester le partage et une liaison inexistante |
-| Faire évoluer les intitulés et notes maximales | Implémenté via le formulaire regroupé | Tester persistance et préservation des autres modèles |
-| Modifier un nouveau modèle non utilisé | Aucun contrôle d’utilisation | Détecter utilisation et protéger toutes les mutations côté serveur |
-| Préserver les structures des années précédentes | Préservation du critère partagé implémentée ; copie et verrouillage absents | Copie, protection et tests d’historique |
-| Simuler la grille sans enregistrer les notes | Absent | Saisie temporaire, calcul et présentation ; factorisation proposée comme idéal |
+| Structure vierge et choix de nature | Implémenté et testé | Vérification navigateur |
+| Copie d’une structure existante | Implémenté et testé sur MySQL isolé | Vérification navigateur |
+| Ajouter des critères nouveaux ou existants | Implémenté et testé | Cas STAGE à clarifier pour la protection |
+| Retirer des critères | Implémenté et testé | Même limite STAGE |
+| Modifier intitulés et points | Implémenté et testé, anciens critères conservés | Même limite STAGE |
+| Préserver les modèles utilisés et leur historique | Protection contrôleur et préservation de la source testées | Clarifier STAGE et valider sur les relations complètes du schéma |
+| Ajouter/supprimer les sections | Non implémenté | Clarifier le sujet avec la base actualisée |
+| Simuler l’utilisation sans enregistrer les notes | Non implémenté | Formulaire temporaire et calcul normalisé |
 
-## Copie, modification et historique : restant principal
 
-- [x] Implémenter copierCriteres() : appelée dans le contrôleur mais absente du modèle.
-- [x] Créer le modèle et copier les associations dans une seule transaction ; addModele() valide actuellement avant la copie.
-- [x] Reprendre valeurs maximales et ordre, sans modifier la source.
-- [x] Détecter si le modèle est référencé par des évaluations, et vérifier les notes déjà saisies selon les règles du sujet.
-- [ ] Appliquer la protection sur tous les ajouts, retraits et modifications, même lors d’un envoi direct au contrôleur.
-- [ ] Préserver la consultation et les données historiques après copie et modification.
-- [ ] Simuler une évaluation sans enregistrer de notes, avec calcul normalisé.
-- [ ] Clarifier et traiter la gestion des sections : le sujet prévoit 1 à 3 sections, 1 à 5 critères par section ; le code utilise une liaison directe modèle/critère.
+## Règles retenues
 
-## Vérification fonctionnelle
+- Les changements annuels nécessitent un nouveau modèle, même pour une modification mineure.
+- La protection actuelle repose sur les notes de critères réellement renseignées, pas sur la seule existence d’une évaluation. La fonction modeleEstUtilise() détecte séparément une référence.
+- Un critère partagé n’est pas supprimé lors d’un retrait. Pour modifier ses textes, une nouvelle version remplace uniquement la liaison ciblée.
+- La somme des points maximum peut dépasser la note maximale de la grille : note finale = somme des notes / somme des maximums × note maximale de la grille (§2.5.1).
+- Les triggers ne sont pas obligatoires pour la détection d’utilisation. Aucun trigger n’était installé lors de l’inspection de la base.
 
-- [x] Création et sélection d’un modèle vierge : fonctionnement confirmé par l’utilisateur.
-- [x] Ajout d’un nouveau critère et affichage des descriptions et points : fonctionnement confirmé par l’utilisateur.
-- [x] Syntaxe PHP des dernières modifications contrôlée.
-- [x] Tester explicitement l’ordre des critères réels. — Validé par tes tests (6 octobre 2026).
-- [x] Tester association d’un critère existant, doublon et actualisation de la liste disponible. — Validé par tes tests (6 octobre 2026).
-- [x] Tester retrait d’un critère partagé : conservation dans la seconde grille et disponibilité dans la première. — Validé par tes tests (6 octobre 2026).
-- [x] Tester une liaison inexistante : aucun faux succès de retrait. — Validé par tes tests (6 octobre 2026).
-- [x] Tester la modification regroupée et sa persistance après rechargement. — Validé par tes tests (6 octobre 2026).
-- [x] Tester les textes invalides et les points inférieurs à 0,5 ; vérifier la conservation des saisies en erreur. — Validé par tes tests (6 octobre 2026).
-- [x] Vérifier que le remplacement d’un texte conserve l’ordre et préserve les autres modèles. — Validé par tes tests (6 octobre 2026).
-- [ ] Tester copie complète et annulation en cas d’échec.
-- [ ] Tester protection des modèles utilisés et historique.
-- [ ] Tester la simulation sans écriture de notes.
-- [x] Refaire les cas d’erreurs de création : invalidité, doublons, identifiant inexistant, indisponibilité de la base. — Validé par tes tests (6 octobre 2026).
-
-Les tests des fonctionnalités actuelles sont confirmés terminés par toi le 6 octobre 2026. Les tests de copie, de protection et de simulation restent ouverts, car ces fonctionnalités restent à implémenter. La simulation cochée dans une ancienne version était incorrecte : elle reste à réaliser.
-
-## Précisions du sujet
-
-- L’évolution annuelle nécessite un nouveau modèle même pour des changements minimes. L’édition ne doit pas altérer les évaluations anciennes.
-- La modification des intitulés est explicitement demandée. La nouvelle version du critère est notre choix technique pour conserver les anciennes descriptions.
-- Le sujet propose trois méthodes de détection d’utilisation : rechercher dans les cinq tables d’évaluation, choisir la table selon la nature, ou employer un indicateur entretenu par trigger. Le trigger n’est pas obligatoire pour cette détection.
-- Le paragraphe de modification demande aussi de vérifier les notes dans LesCriteresNotes... lorsqu’une évaluation référence le modèle. Distinguer la référence d’une évaluation des notes déjà saisies ; clarifier le verrouillage si nécessaire.
-- La somme des maximums peut dépasser la note maximale de la grille : note finale = somme des notes / somme des maximums × note maximale de la grille (section 2.5.1).
-- Aucun script SQL ni trigger n’est présent dans ce dépôt ; les contrôles installés dans la base ne sont pas audités.
-
-**Sources :** sujet R3.07 2026–2027, page 12 (§5.1), page 3 (§2.5.1), règles d’évolution et d’historique, et fichiers PHP actuels.
+**Sources :** sujet R3.07 2026–2027, page 12 (§5.1), page 3 (§2.5.1), code actuel, schéma réel et tests du 7 octobre 2026.
