@@ -9,6 +9,7 @@
     $erreurCreation = null;
     $succesCreation = null;
     $modeleSelectionne = null;
+    $modelePossedeNote = null;
     $afficherFormulaireCritere = false;
     $afficherFormulaireAssociation = false;
     $idCritereSelectionne = null;
@@ -353,7 +354,6 @@
         {
             try
             {
-                // Retrouver le modèle après l'envoi du formulaire et vérifier son existence.
                 $modeleSelectionne = getModeleParId($pdo, $idModeleEval);
                 if ($modeleSelectionne === false)
                 {
@@ -364,28 +364,35 @@
                     $afficherEdition = true;
                     $criteresModele = getCriteresParIdModele($pdo, $idModeleEval);
 
-                    // La liste disponible exclut les critères inexistants ou déjà associés.
-                    $criteresDisponibles = getCriteresDisponibles($pdo, $idModeleEval);
-                    $critereDisponible = false;
-                    foreach ($criteresDisponibles as $critere)
+                    // Refuser l'association après avoir chargé la grille pour conserver son affichage.
+                    if (modelePossedeNotes($pdo, $idModeleEval))
                     {
-                        if ((int) $critere['IdCritere'] === $idCritere)
-                        {
-                            $critereDisponible = true;
-                            break;
-                        }
-                    }
-
-                    if (!$critereDisponible)
-                    {
-                        $erreurCreation = "Ce critère n'existe pas ou est déjà associé au modèle.";
+                        $erreurCreation = "Ce modèle possède déjà des notes. Duplique-le pour le modifier.";
                     }
                     else
                     {
-                        associerCritere($pdo, $idModeleEval, $idCritere, $valeurMaxCritere);
-                        $succesCreation = "Le critère a été associé avec succès au modèle.";
-                        $criteresModele = getCriteresParIdModele($pdo, $idModeleEval);
-                        $afficherFormulaireAssociation = false;
+                        $criteresDisponibles = getCriteresDisponibles($pdo, $idModeleEval);
+                        $critereDisponible = false;
+                        foreach ($criteresDisponibles as $critere)
+                        {
+                            if ((int) $critere['IdCritere'] === $idCritere)
+                            {
+                                $critereDisponible = true;
+                                break;
+                            }
+                        }
+
+                        if (!$critereDisponible)
+                        {
+                            $erreurCreation = "Ce critère n'existe pas ou est déjà associé au modèle.";
+                        }
+                        else
+                        {
+                            associerCritere($pdo, $idModeleEval, $idCritere, $valeurMaxCritere);
+                            $succesCreation = "Le critère a été associé avec succès au modèle.";
+                            $criteresModele = getCriteresParIdModele($pdo, $idModeleEval);
+                            $afficherFormulaireAssociation = false;
+                        }
                     }
                 }
             }
