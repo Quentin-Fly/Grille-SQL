@@ -81,7 +81,7 @@
         <br>
 
         <label for="descLongueCritere">Description longue :</label>
-        <input type="text" id="descLongueCritere" name="descLongueCritere" maxlength="500">
+        <textarea id="descLongueModification" name="descLongueCritere" maxlength="500"><?= htmlspecialchars((string) ($critereAModifier['descLongue'] ?? ''), ENT_QUOTES, 'UTF-8') ?></textarea>
         <br>
 
         <label for="valeurMaxCritere">Valeur maximale :</label>

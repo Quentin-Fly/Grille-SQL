@@ -38,10 +38,10 @@ La création d’une nouvelle version protège les autres modèles qui partagent
 
 ## Copie, modification et historique : restant principal
 
-- [ ] Implémenter copierCriteres() : appelée dans le contrôleur mais absente du modèle.
-- [ ] Créer le modèle et copier les associations dans une seule transaction ; addModele() valide actuellement avant la copie.
-- [ ] Reprendre valeurs maximales et ordre, sans modifier la source.
-- [ ] Détecter si le modèle est référencé par des évaluations, et vérifier les notes déjà saisies selon les règles du sujet.
+- [x] Implémenter copierCriteres() : appelée dans le contrôleur mais absente du modèle.
+- [x] Créer le modèle et copier les associations dans une seule transaction ; addModele() valide actuellement avant la copie.
+- [x] Reprendre valeurs maximales et ordre, sans modifier la source.
+- [x] Détecter si le modèle est référencé par des évaluations, et vérifier les notes déjà saisies selon les règles du sujet.
 - [ ] Appliquer la protection sur tous les ajouts, retraits et modifications, même lors d’un envoi direct au contrôleur.
 - [ ] Préserver la consultation et les données historiques après copie et modification.
 - [ ] Simuler une évaluation sans enregistrer de notes, avec calcul normalisé.
@@ -65,15 +65,6 @@ La création d’une nouvelle version protège les autres modèles qui partagent
 - [x] Refaire les cas d’erreurs de création : invalidité, doublons, identifiant inexistant, indisponibilité de la base. — Validé par tes tests (6 octobre 2026).
 
 Les tests des fonctionnalités actuelles sont confirmés terminés par toi le 6 octobre 2026. Les tests de copie, de protection et de simulation restent ouverts, car ces fonctionnalités restent à implémenter. La simulation cochée dans une ancienne version était incorrecte : elle reste à réaliser.
-
-## Corrections techniques et compléments
-
-- [ ] Corriger $error_log(...) en error_log(...) dans le contrôleur, lors d’une erreur de création du modèle.
-- [ ] Ne plus afficher les détails PDO dans le message d’échec de connexion.
-- [ ] Nettoyer si utile le traitement séparé des points : la vue utilise maintenant le formulaire regroupé.
-- [ ] Année universitaire automatique : tâche de notre ancienne checklist, non explicitement imposée au paragraphe 5.1.
-- [ ] Modification de l’ordre : complément de notre checklist, non explicitement imposé au paragraphe 5.1.
-- [ ] Mise en forme HTML des descriptions : complément à vérifier dans les autres consignes ; le code actuel affiche du texte échappé.
 
 ## Précisions du sujet
 
