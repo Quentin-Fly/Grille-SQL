@@ -294,13 +294,28 @@
         {
             try
             {
-                $idNouveauCritere = addCritere($pdo, $idModeleEval, $descCourteCritere, $descLongueCritere, $valeursMaxCritere);
-                $succesCreation = "Le critère a été créé avec succès.";
-                $criteresModele = getCriteresParIdModele($pdo, $idModeleEval);
-                // Réinitialiser le formulaire après la création réussie
                 $modeleSelectionne = getModeleParId($pdo, $idModeleEval);
-                $afficherFormulaireCritere = false;
-                $afficherEdition = true;
+                if ($modeleSelectionne === false)
+                {
+                    $erreurCritere[] = "Le modèle sélectionné n'existe pas.";
+                }
+                else
+                {
+                    $criteresModele = getCriteresParIdModele($pdo, $idModeleEval);
+                    $afficherEdition = true;
+                    if (modelePossedeNotes($pdo, $idModeleEval))
+                    {
+                        $erreurCreation = "Ce modèle possède déjà des notes. Duplique-le pour le modifier.";
+                        $afficherFormulaireCritere = false;
+                    }
+                    else
+                    {
+                        $idNouveauCritere = addCritere($pdo, $idModeleEval, $descCourteCritere, $descLongueCritere, $valeursMaxCritere);
+                        $succesCreation = "Le critère a été créé avec succès.";
+                        $criteresModele = getCriteresParIdModele($pdo, $idModeleEval);
+                        $afficherFormulaireCritere = false;
+                    }
+                }
             }
             catch (PDOException $e)
             {
@@ -496,7 +511,11 @@
                         }
                     }
 
-                    if (!$critereAssocie)
+                    if (modelePossedeNotes($pdo, $idModeleEval))
+                    {
+                        $erreurCreation = "Ce modèle possède déjà des notes. Duplique-le pour le modifier.";
+                    }
+                    elseif (!$critereAssocie)
                     {
                         $erreurCreation = "Ce critère n'est pas associé à ce modèle.";
                     }
@@ -547,7 +566,12 @@
                             break;
                         }
                     }
-                    if ($critereAModifier === null)
+                    if (modelePossedeNotes($pdo, $idModeleEval))
+                    {
+                        $erreurCreation = "Ce modèle possède déjà des notes. Duplique-le pour le modifier.";
+                        $critereAModifier = null;
+                    }
+                    elseif ($critereAModifier === null)
                     {
                         $erreurCreation = "Ce critère n'est pas associé à ce modèle.";
                     }
@@ -594,7 +618,12 @@
                             break;
                         }
                     }
-                    if ($critereAModifier === null)
+                    if (modelePossedeNotes($pdo, $idModeleEval))
+                    {
+                        $erreurCreation = "Ce modèle possède déjà des notes. Duplique-le pour le modifier.";
+                        $critereAModifier = null;
+                    }
+                    elseif ($critereAModifier === null)
                     {
                         $erreurCreation = "Ce critère n'est pas associé à ce modèle.";
                     }

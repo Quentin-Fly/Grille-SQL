@@ -355,62 +355,46 @@
             throw $e;
         }
     }
-    // Détecter une référence au modèle dans une évaluation, même sans notes saisies.
+    // Schéma actuel : deux évaluations de soutenance ; EvalStage ne référence aucun modèle.
     function modeleEstUtilise($pdo, $idModeleEval)
     {
-        $sql = "SELECT 1 FROM EvalAnglais WHERE IdModeleEval = :idAnglais
-                UNION ALL
-                SELECT 1 FROM EvalRapport WHERE IdModeleEval = :idRapport
-                UNION ALL
-                SELECT 1 FROM EvalSoutenance WHERE IdModeleEval = :idSoutenance
-                UNION ALL
-                SELECT 1 FROM EvalStage WHERE IdModeleEval = :idStage
-                UNION ALL
-                SELECT 1 FROM EvalPortfolio WHERE IdModeleEval = :idPortfolio
+        $sql = "SELECT 1 FROM evalanglais WHERE IdModeleEval = :anglais
+                UNION ALL SELECT 1 FROM evalrapport WHERE IdModeleEval = :rapport
+                UNION ALL SELECT 1 FROM evalportfolio WHERE IdModeleEval = :portfolio
+                UNION ALL SELECT 1 FROM evalsoutenanceenstuteur WHERE IdModeleEval = :tuteur
+                UNION ALL SELECT 1 FROM evalsoutenanceenssecond WHERE IdModeleEval = :second
                 LIMIT 1";
         $stmt = $pdo->prepare($sql);
-        $stmt->execute([
-            ':idAnglais' => $idModeleEval,
-            ':idRapport' => $idModeleEval,
-            ':idSoutenance' => $idModeleEval,
-            ':idStage' => $idModeleEval,
-            ':idPortfolio' => $idModeleEval
-        ]);
-
+        $stmt->execute([':anglais' => $idModeleEval, ':rapport' => $idModeleEval,
+            ':portfolio' => $idModeleEval, ':tuteur' => $idModeleEval, ':second' => $idModeleEval]);
         return $stmt->fetchColumn() !== false;
     }
-    // Détecter les notes de critères via les évaluations qui référencent le modèle.
+
     function modelePossedeNotes($pdo, $idModeleEval)
     {
-        $sql = "SELECT 1 FROM EvalAnglais AS e
-                JOIN LesCriteresNotesAnglais AS n ON n.IdEvalAnglais = e.IdEvalAnglais
-                WHERE e.IdModeleEval = :idAnglais
+        $sql = "SELECT 1 FROM evalanglais e
+                JOIN lescriteresnotesanglais n ON n.IdEvalAnglais = e.IdEvalAnglais
+                WHERE e.IdModeleEval = :anglais AND n.noteCritere IS NOT NULL
                 UNION ALL
-                SELECT 1 FROM EvalRapport AS e
-                JOIN LesCriteresNotesRapport AS n ON n.IdEvalRapport = e.IdEvalRapport
-                WHERE e.IdModeleEval = :idRapport
+                SELECT 1 FROM evalrapport e
+                JOIN lescriteresnotesrapport n ON n.IdEvalRapport = e.IdEvalRapport
+                WHERE e.IdModeleEval = :rapport AND n.noteCritere IS NOT NULL
                 UNION ALL
-                SELECT 1 FROM EvalSoutenance AS e
-                JOIN LesCriteresNotesSoutenance AS n ON n.IdEvalSoutenance = e.IdEvalSoutenance
-                WHERE e.IdModeleEval = :idSoutenance
+                SELECT 1 FROM evalportfolio e
+                JOIN lescriteresnotesportfolio n ON n.IdEvalPortfolio = e.IdEvalPortfolio
+                WHERE e.IdModeleEval = :portfolio AND n.noteCritere IS NOT NULL
                 UNION ALL
-                SELECT 1 FROM EvalStage AS e
-                JOIN LesCriteresNotesStage AS n ON n.IdEvalStage = e.IdEvalStage
-                WHERE e.IdModeleEval = :idStage
+                SELECT 1 FROM evalsoutenanceenstuteur e
+                JOIN lescriteresnotessoutenanceenstut n ON n.IdEvalSoutenanceEnsTut = e.IdEvalSoutenanceEnsTut
+                WHERE e.IdModeleEval = :tuteur AND n.noteCritere IS NOT NULL
                 UNION ALL
-                SELECT 1 FROM EvalPortfolio AS e
-                JOIN LesCriteresNotesPortFolio AS n ON n.IdEvalPortfolio = e.IdEvalPortfolio
-                WHERE e.IdModeleEval = :idPortfolio
+                SELECT 1 FROM evalsoutenanceenssecond e
+                JOIN lescriteresnotessoutenanceenssecond n ON n.IdEvalSoutenanceEnsSecond = e.IdEvalSoutenanceEnsSecond
+                WHERE e.IdModeleEval = :second AND n.noteCritere IS NOT NULL
                 LIMIT 1";
         $stmt = $pdo->prepare($sql);
-        $stmt->execute([
-            ':idAnglais' => $idModeleEval,
-            ':idRapport' => $idModeleEval,
-            ':idSoutenance' => $idModeleEval,
-            ':idStage' => $idModeleEval,
-            ':idPortfolio' => $idModeleEval
-        ]);
-
+        $stmt->execute([':anglais' => $idModeleEval, ':rapport' => $idModeleEval,
+            ':portfolio' => $idModeleEval, ':tuteur' => $idModeleEval, ':second' => $idModeleEval]);
         return $stmt->fetchColumn() !== false;
     }
 ?>
