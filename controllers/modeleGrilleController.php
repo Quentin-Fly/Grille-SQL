@@ -423,7 +423,6 @@
         {
             try
             {
-                // Retrouver le modèle après l'envoi du formulaire et vérifier son existence.
                 $modeleSelectionne = getModeleParId($pdo, $idModeleEval);
                 if ($modeleSelectionne === false)
                 {
@@ -431,17 +430,27 @@
                 }
                 else
                 {
-                    $liaisonRetiree = retirerCritere($pdo, $idModeleEval, $idCritere);
-                    if ($liaisonRetiree)
+                    $criteresModele = getCriteresParIdModele($pdo, $idModeleEval);
+                    $afficherEdition = true;
+
+                    // Le retrait doit rester dans le else pour ne jamais contourner le refus.
+                    if (modelePossedeNotes($pdo, $idModeleEval))
                     {
-                        $succesCreation = "Le critère a été retiré avec succès du modèle.";
+                        $erreurCreation = "Ce modèle possède déjà des notes. Duplique-le pour le modifier.";
                     }
                     else
                     {
-                        $erreurCreation = "Ce critère n'est pas associé à ce modèle.";
+                        $liaisonRetiree = retirerCritere($pdo, $idModeleEval, $idCritere);
+                        if ($liaisonRetiree)
+                        {
+                            $succesCreation = "Le critère a été retiré avec succès du modèle.";
+                        }
+                        else
+                        {
+                            $erreurCreation = "Ce critère n'est pas associé à ce modèle.";
+                        }
+                        $criteresModele = getCriteresParIdModele($pdo, $idModeleEval);
                     }
-                    $criteresModele = getCriteresParIdModele($pdo, $idModeleEval);
-                    $afficherEdition = true;
                 }
             }
             catch (PDOException $e)
