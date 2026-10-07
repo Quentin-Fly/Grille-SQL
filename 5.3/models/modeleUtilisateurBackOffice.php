@@ -1,26 +1,33 @@
 <?php
-    // Récupère tous les utilisateurs back-office
-    function getUtilisateurBackOffice($pdo)
-    {
-        $sql = "SELECT Identifiant, nom, prenom, mail
-                FROM utilisateursbackoffice
-                ORDER BY nom, prenom";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+// Récupère tous les utilisateurs back-office.
+function getUtilisateurBackOffice($pdo)
+{
+    $stmt = $pdo->prepare('SELECT Identifiant, nom, prenom, mail FROM utilisateursbackoffice ORDER BY Identifiant ASC');
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+function creerUtilisateurBackOffice($pdo, $nom, $prenom, $mail, $mdp)
+{
+    $mdpHash = password_hash($mdp, PASSWORD_DEFAULT);
+
+    // Sans AUTO_INCREMENT, le verrou évite deux créations avec le même identifiant.
+    // La table fournie est MyISAM : une transaction ne suffit pas pour ce calcul.
+    $pdo->exec('LOCK TABLES utilisateursbackoffice WRITE');
+    try {
+        $identifiant = (int) $pdo->query('SELECT COALESCE(MAX(Identifiant), 0) + 1 FROM utilisateursbackoffice')->fetchColumn();
+        if ($identifiant > 32767) {
+            throw new RuntimeException('La capacité des identifiants SMALLINT est atteinte.');
+        }
+        $stmt = $pdo->prepare('INSERT INTO utilisateursbackoffice (Identifiant, nom, prenom, mail, mdp) VALUES (:identifiant, :nom, :prenom, :mail, :mdp)');
+        return $stmt->execute([
+            ':identifiant' => $identifiant,
+            ':nom' => $nom,
+            ':prenom' => $prenom,
+            ':mail' => $mail,
+            ':mdp' => $mdpHash
+        ]);
+    } finally {
+        $pdo->exec('UNLOCK TABLES');
     }
-    // Crée un nouvel utilisateur back-office
-    function creerUtilisateurBackOffice($pdo, $identifiant, $nom, $prenom, $mail, $mdp)
-    {
-        $sql = "INSERT INTO utilisateursbackoffice (Identifiant, nom, prenom, mail, mdp)
-                VALUES (:identifiant, :nom, :prenom, :mail, :mdp)";
-        $stmt = $pdo->prepare($sql);
-        $stmt->bindParam(':identifiant', $identifiant, PDO::PARAM_INT);
-        $stmt->bindParam(':nom', $nom);
-        $stmt->bindParam(':prenom', $prenom);
-        $stmt->bindParam(':mail', $mail);
-        $mdpHash = password_hash($mdp, PASSWORD_DEFAULT);
-        $stmt->bindParam(':mdp', $mdpHash);
-        return $stmt->execute();
-    }
-?>
+}
