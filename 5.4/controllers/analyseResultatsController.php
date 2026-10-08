@@ -39,6 +39,6 @@
     {
         $resultats = getResultatsParAnnee($pdo, $anneeSelectionnee);
     }
-    // La récupération des résultats sera ajoutée à l'étape suivante.
+    // Charger la vue après la récupération des résultats de l'année validée.
     require __DIR__ . '/../view/analyse_resultats/index.php';
 ?>

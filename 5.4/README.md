@@ -13,8 +13,12 @@ Elle concerne uniquement la section 5.4 du sujet, page 14. La saisie des notes, 
 - [x] Relire les exigences de la section 5.4.
 - [x] Préparer un jeu de données fictives pour les consultations et statistiques.
 - [x] Vérifier le jeu de données : 15 contrôles de cohérence réussis sur tables temporaires.
-- [ ] Importer le jeu fictif et vérifier son accès depuis le futur module.
-- [ ] Créer les fichiers PHP et les vues décrits ci-dessous.
+- [x] Importer le jeu fictif dans `grille_sql_test_54_20261008` et vérifier son accès depuis 5.4.
+- [x] Créer les fichiers PHP et les vues ; les vues de résultats, fiche, moyennes, alertes et répartition restent à remplir.
+- [x] Configurer la connexion à la base de test séparée, conforme aux colonnes de `DB_OK.sql`.
+- [x] Récupérer les années et valider le filtre, avec conservation de l'année choisie.
+- [x] Écrire et brancher `getResultatsParAnnee` : requête de résultats `BLOQUEE` ou `DIFFUSEE`, filtrée par année.
+- [ ] Afficher ces résultats dans `resultatsStages.php`.
 
 ## 5.4.1 — Résultats des stages
 
@@ -62,7 +66,7 @@ Le schéma fourni possède `entreprises.codePostal` et `villeE`, mais aucune col
 ├── config/
 │   └── database.php
 ├── models/
-│   └── analyseResultats.php
+│   └── modeleAnalyseResultats.php
 ├── controllers/
 │   └── analyseResultatsController.php
 └── view/
@@ -72,7 +76,7 @@ Le schéma fourni possède `entreprises.codePostal` et `villeE`, mais aucune col
         ├── resultatsStages.php
         ├── ficheEtudiant.php
         ├── moyennes.php
-        ├── alertes.php
+        ├── alerte.php
         ├── repartitionStages.php
         └── style.css
 ```
@@ -80,15 +84,15 @@ Le schéma fourni possède `entreprises.codePostal` et `villeE`, mais aucune col
 | Fichier | Rôle |
 |---|---|
 | `index.php` | Point d'entrée local : charge le contrôleur. |
-| `config/database.php` | Connexion PDO ; utilise la base fictive pour les essais. Lors de la fusion, réutiliser la connexion commune. |
-| `models/analyseResultats.php` | Requêtes SELECT pour les résultats, moyennes, alertes et statistiques géographiques. |
+| `config/database.php` | Connexion PDO à `grille_sql_test_54_20261008`, base de test conforme aux tables de `DB_OK.sql`. Pour l'intégration finale : connexion commune à `stagebdmerge`. |
+| `models/modeleAnalyseResultats.php` | Requêtes SELECT pour les résultats, moyennes, alertes et statistiques géographiques. |
 | `controllers/analyseResultatsController.php` | Valide les filtres, appelle le modèle et prépare les variables des vues. |
 | `view/analyse_resultats/index.php` | Assemble les vues et affiche les messages. |
 | `view/analyse_resultats/filtres.php` | Sélection de l'année, du parcours et de l'étudiant. |
 | `view/analyse_resultats/resultatsStages.php` | Tableau des évaluations terminées. |
 | `view/analyse_resultats/ficheEtudiant.php` | Fiche complète de l'étudiant sélectionné. |
 | `view/analyse_resultats/moyennes.php` | Moyennes de promotion, par enseignant et par type d'évaluation. |
-| `view/analyse_resultats/alertes.php` | Liste des notes manquantes après les soutenances. |
+| `view/analyse_resultats/alerte.php` | Liste des notes manquantes après les soutenances. |
 | `view/analyse_resultats/repartitionStages.php` | Répartition géographique et comparaison des années. |
 | `view/analyse_resultats/style.css` | Style du module, à reprendre depuis les autres sections. |
 
@@ -127,7 +131,7 @@ Ces moyennes supposent le filtre indiqué ; inclure des notes encore en saisie p
 
 ## Tests à réaliser sur le module
 
-- [ ] Vérifier la syntaxe PHP et l'absence d'avertissements.
+- [x] Vérifier la syntaxe des 11 fichiers PHP et l'absence d'avertissements dans les traitements déjà implémentés.
 - [ ] Vérifier les résultats avec plusieurs années et les parcours BUT2/BUT3.
 - [ ] Vérifier qu'une fiche ne mélange pas les années d'un étudiant.
 - [ ] Comparer les moyennes aux valeurs de référence du jeu fictif.
