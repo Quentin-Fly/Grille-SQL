@@ -5,6 +5,7 @@
     $anneesUniversitaires = getAnneesUniversitaires($pdo);
     $anneeSelectionnee = null;
     $erreurFiltre = null;
+    $ficheEtudiant = null;
 
     if (isset($_GET['anneeDebut'])) 
     {
@@ -34,6 +35,24 @@
         $anneeSelectionnee = (int) $anneesUniversitaires[0]['anneeDebut'];
     }
     $resultats = [];
+
+    if (isset($_GET['idEtudiant']))
+    {
+        $idEtudiant = filter_var($_GET['idEtudiant'], FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+        if ($idEtudiant === false)
+        {
+            $erreurFiltre = "Identifiant d'étudiant invalide.";
+        }
+        elseif ($anneeSelectionnee !== null)
+        {
+            $ficheEtudiant = getFicheEtudiant($pdo, $idEtudiant, $anneeSelectionnee);
+            if ($ficheEtudiant === false)
+            {
+                $ficheEtudiant = null;
+                $erreurFiltre = 'Aucun stage trouvé pour cet étudiant et cette année.';
+            }
+        }
+    }
 
     if ($anneeSelectionnee !== null) 
     {
