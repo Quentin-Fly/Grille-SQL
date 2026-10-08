@@ -57,8 +57,8 @@
         }
     }
     if (isset($_POST['supprimerUtilisateur'])) {
-        $identifiant = is_numeric($_POST['identifiant'] ?? null) ? (int) $_POST['identifiant'] : null;
-        if ($identifiant !== null) 
+        $identifiant = filter_var($_POST['identifiant'] ?? '', FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+        if ($identifiant !== false) 
         {
             try 
             {
@@ -83,7 +83,7 @@
         }
     }
 
-    // Charger la liste après le traitement pour afficher le compte nouvellement créé.
+    // Charger la liste après les traitements pour refléter les ajouts et suppressions.
     $utilisateursBackOffice = getUtilisateurBackOffice($pdo);
     require __DIR__ . '/../view/utilisateurBackOffice/index.php';
 ?>
