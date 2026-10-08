@@ -14,21 +14,21 @@ Elle concerne uniquement la section 5.4 du sujet, page 14. La saisie des notes, 
 - [x] Préparer un jeu de données fictives pour les consultations et statistiques.
 - [x] Vérifier le jeu de données : 15 contrôles de cohérence réussis sur tables temporaires.
 - [x] Importer le jeu fictif dans `grille_sql_test_54_20261008` et vérifier son accès depuis 5.4.
-- [x] Créer les fichiers PHP et les vues ; les vues de résultats, fiche, moyennes, alertes et répartition restent à remplir.
+- [x] Créer les fichiers PHP et les vues ; les vues de résultats et de fiche sont remplies ; moyennes, alertes et répartition restent à réaliser.
 - [x] Configurer la connexion à la base de test séparée, conforme aux colonnes de `DB_OK.sql`.
 - [x] Récupérer les années et valider le filtre, avec conservation de l'année choisie.
 - [x] Écrire et brancher `getResultatsParAnnee` : requête de résultats `BLOQUEE` ou `DIFFUSEE`, filtrée par année.
-- [ ] Afficher ces résultats dans `resultatsStages.php`.
+- [x] Afficher ces résultats dans `resultatsStages.php`.
 
 ## 5.4.1 — Résultats des stages
 
 ### Consultations
 
-- [ ] Afficher les évaluations terminées.
-- [ ] Proposer la sélection d'un étudiant pour afficher sa fiche complète.
-- [ ] Afficher les notes disponibles : stage, entreprise, tuteur, rapport, soutenance et portfolio.
-- [ ] Afficher l'anglais pour les BUT3 lorsqu'une évaluation existe.
-- [ ] Distinguer une note absente (`NULL`) d'un zéro.
+- [x] Afficher les évaluations terminées.
+- [x] Proposer la sélection d'un étudiant pour afficher sa fiche complète.
+- [x] Afficher les notes disponibles : stage, entreprise, tuteur, rapport, soutenance et portfolio.
+- [x] Afficher l'anglais pour les BUT3 lorsqu'une évaluation existe.
+- [x] Distinguer une note absente (`NULL`) d'un zéro.
 
 ### Moyennes
 
@@ -88,13 +88,13 @@ Le schéma fourni possède `entreprises.codePostal` et `villeE`, mais aucune col
 | `models/modeleAnalyseResultats.php` | Requêtes SELECT pour les résultats, moyennes, alertes et statistiques géographiques. |
 | `controllers/analyseResultatsController.php` | Valide les filtres, appelle le modèle et prépare les variables des vues. |
 | `view/analyse_resultats/index.php` | Assemble les vues et affiche les messages. |
-| `view/analyse_resultats/filtres.php` | Sélection de l'année, du parcours et de l'étudiant. |
+| `view/analyse_resultats/filtres.php` | Sélection de l'année ; le filtre de parcours reste à ajouter si retenu. La sélection d'étudiant se fait par le lien « Voir la fiche » dans la liste. |
 | `view/analyse_resultats/resultatsStages.php` | Tableau des évaluations terminées. |
 | `view/analyse_resultats/ficheEtudiant.php` | Fiche complète de l'étudiant sélectionné. |
 | `view/analyse_resultats/moyennes.php` | Moyennes de promotion, par enseignant et par type d'évaluation. |
 | `view/analyse_resultats/alerte.php` | Liste des notes manquantes après les soutenances. |
 | `view/analyse_resultats/repartitionStages.php` | Répartition géographique et comparaison des années. |
-| `view/analyse_resultats/style.css` | Style du module, à reprendre depuis les autres sections. |
+| `view/analyse_resultats/style.css` | Style du module repris des autres sections. |
 
 Les filtres et consultations peuvent utiliser GET, puisqu'ils ne modifient pas la base. Les fonctions du modèle utilisent des requêtes préparées et les vues échappent les textes affichés.
 
@@ -132,14 +132,16 @@ Ces moyennes supposent le filtre indiqué ; inclure des notes encore en saisie p
 ## Tests à réaliser sur le module
 
 - [x] Vérifier la syntaxe des 11 fichiers PHP et l'absence d'avertissements dans les traitements déjà implémentés.
-- [ ] Vérifier les résultats avec plusieurs années et les parcours BUT2/BUT3.
-- [ ] Vérifier qu'une fiche ne mélange pas les années d'un étudiant.
+- [x] Vérifier la récupération des résultats sur plusieurs années et l'affichage des fiches BUT2/BUT3.
+- [x] Vérifier qu'une demande de fiche pour une année où l'étudiant n'a pas de stage est refusée.
+- [ ] Tester un même étudiant avec des stages sur plusieurs années.
 - [ ] Comparer les moyennes aux valeurs de référence du jeu fictif.
+- [x] Vérifier dans la fiche que `NULL` affiche « Non renseignée » et que zéro reste affiché.
 - [ ] Vérifier que les notes nulles sont exclues des moyennes et que zéro est conservé.
 - [ ] Vérifier les moyennes par enseignant et l'absence de doublons dus aux jointures.
 - [ ] Tester les alertes avec des notes manquantes et des soutenances passées ou futures.
 - [ ] Comparer les effectifs géographiques au jeu fictif.
-- [ ] Tester une année sans données et un étudiant inexistant.
+- [x] Tester une année sans données et un étudiant inexistant.
 - [ ] Vérifier que les textes affichés sont échappés et les filtres validés.
 - [ ] Vérifier l'affichage dans le navigateur.
 
