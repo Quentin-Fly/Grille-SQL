@@ -31,3 +31,11 @@ function creerUtilisateurBackOffice($pdo, $nom, $prenom, $mail, $mdp)
         $pdo->exec('UNLOCK TABLES');
     }
 }
+// Fonction qui permet de supprimer un utilisateur du back-office en fonction de son identifiant.
+function supprimerUtilisateurBackOffice($pdo, $identifiant)
+{
+    $stmt = $pdo->prepare( 'DELETE FROM utilisateursbackoffice 
+                            WHERE Identifiant = :identifiant');
+    $stmt->execute([':identifiant' => $identifiant]);
+    return $stmt->rowCount() > 0;
+}
