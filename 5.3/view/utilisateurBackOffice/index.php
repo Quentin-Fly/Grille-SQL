@@ -4,10 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Statuts et droits des utilisateurs</title>
+    <link rel="stylesheet" href="view/utilisateurBackOffice/style.css">
 </head>
 <body>
     <h1>Statuts et droits des utilisateurs</h1>
-    <form method="post" action="index.php">
+    <form method="post" action="index.php" class="actions-utilisateurs">
         <button type="submit" name="nouvelUtilisateur">Nouvel utilisateur</button>
     </form>
     <?php require __DIR__ . '/listeUtilisateurs.php'; ?>
