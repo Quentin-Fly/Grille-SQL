@@ -67,4 +67,17 @@
 
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
+    // Calcule la moyenne des note de stage de la promotion par an
+    function getMoyenneStageParAnnee($pdo, $anneeDebut)
+    {
+        $stmt = $pdo->prepare(
+            "SELECT AVG(ev.noteStage) AS moyenneStage, COUNT(ev.noteStage) AS nombreNotes
+            FROM evalstage ev
+            WHERE ev.anneeDebut = :anneeDebut
+            AND ev.Statut IN ('BLOQUEE', 'DIFFUSEE')"
+        );
+        $stmt->bindValue(':anneeDebut', $anneeDebut, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
 ?>

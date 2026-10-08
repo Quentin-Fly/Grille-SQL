@@ -6,6 +6,7 @@
     $anneeSelectionnee = null;
     $erreurFiltre = null;
     $ficheEtudiant = null;
+    $moyenneStage = null;
 
     if (isset($_GET['anneeDebut'])) 
     {
@@ -49,14 +50,15 @@
             if ($ficheEtudiant === false)
             {
                 $ficheEtudiant = null;
+    $moyenneStage = null;
                 $erreurFiltre = 'Aucun stage trouvé pour cet étudiant et cette année.';
             }
         }
     }
-
     if ($anneeSelectionnee !== null) 
     {
         $resultats = getResultatsParAnnee($pdo, $anneeSelectionnee);
+        $moyenneStage = getMoyenneStageParAnnee($pdo, $anneeSelectionnee);
     }
     // Charger la vue après la récupération des résultats de l'année validée.
     require __DIR__ . '/../view/analyse_resultats/index.php';

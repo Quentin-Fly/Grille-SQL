@@ -14,7 +14,7 @@ Elle concerne uniquement la section 5.4 du sujet, page 14. La saisie des notes, 
 - [x] Préparer un jeu de données fictives pour les consultations et statistiques.
 - [x] Vérifier le jeu de données : 15 contrôles de cohérence réussis sur tables temporaires.
 - [x] Importer le jeu fictif dans `grille_sql_test_54_20261008` et vérifier son accès depuis 5.4.
-- [x] Créer les fichiers PHP et les vues ; les vues de résultats et de fiche sont remplies ; moyennes, alertes et répartition restent à réaliser.
+- [x] Créer les fichiers PHP et les vues ; les vues de résultats et de fiche sont remplies ; la moyenne de stage est affichée ; moyennes par enseignant et par type, alertes et répartition restent à réaliser.
 - [x] Configurer la connexion à la base de test séparée, conforme aux colonnes de `DB_OK.sql`.
 - [x] Récupérer les années et valider le filtre, avec conservation de l'année choisie.
 - [x] Écrire et brancher `getResultatsParAnnee` : requête de résultats `BLOQUEE` ou `DIFFUSEE`, filtrée par année.
@@ -32,11 +32,13 @@ Elle concerne uniquement la section 5.4 du sujet, page 14. La saisie des notes, 
 
 ### Moyennes
 
-- [ ] Afficher la moyenne actuelle de promotion.
+- [x] Afficher la moyenne de stage pour l'année sélectionnée (BUT2 et BUT3 réunis, évaluations `BLOQUEE` ou `DIFFUSEE`).
 - [ ] Afficher les moyennes par enseignant.
 - [ ] Afficher les moyennes par type d'évaluation.
-- [ ] Identifier le nombre de notes pris en compte dans chaque moyenne.
-- [ ] Traiter les groupes sans note disponible sans afficher une moyenne de zéro.
+- [x] Afficher le nombre de notes pris en compte dans la moyenne de stage.
+- [ ] Afficher le nombre de notes pour les futures moyennes par enseignant et type.
+- [x] Afficher « Aucune note disponible » lorsque la moyenne de stage ne dispose d'aucune note.
+- [ ] Appliquer ce traitement aux futures moyennes par enseignant et type.
 
 Le sujet ne précise pas tous les filtres des moyennes. Définir et documenter les statuts retenus, l'année et les parcours concernés. Pour les enseignants, préciser le rôle considéré : enseignant tuteur, second enseignant ou enseignant d'anglais. Ne pas compter plusieurs fois une note à cause des jointures avec les critères.
 

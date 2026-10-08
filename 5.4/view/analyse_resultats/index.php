@@ -16,5 +16,7 @@
         <!-- Affichage des résultats de Stage -->
         <?php require __DIR__ . '/resultatsStages.php'; ?>
         <?php require __DIR__ . '/ficheEtudiant.php'; ?>
+        <!-- Affichage des moyennes -->
+        <?php require __DIR__ . '/moyennes.php'; ?>
     </body>
 </html> 
