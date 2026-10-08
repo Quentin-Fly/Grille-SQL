@@ -41,3 +41,39 @@
         </tbody>
     </table>
 <?php endif; ?>
+<?php if ($anneeSelectionnee !== null) : ?>
+    <h2>Moyennes de stage par enseignant tuteur</h2>
+
+    <?php if (!empty($moyennesParEnseignant)) : ?>
+        <table>
+            <thead>
+                <tr>
+                    <th>Nom</th>
+                    <th>Prénom</th>
+                    <th>Moyenne</th>
+                    <th>Nombre de notes</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($moyennesParEnseignant as $enseignant) : ?>
+                    <tr>
+                        <td>
+                            <?= htmlspecialchars($enseignant['nom'], ENT_QUOTES, 'UTF-8') ?>
+                        </td>
+                        <td>
+                            <?= htmlspecialchars($enseignant['prenom'], ENT_QUOTES, 'UTF-8') ?>
+                        </td>
+                        <td>
+                            <?= $enseignant['moyenne'] === null
+                                ? 'Aucune note'
+                                : number_format((float) $enseignant['moyenne'], 2, ',', ' ') ?>
+                        </td>
+                        <td><?= (int) $enseignant['nombreNotes'] ?></td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    <?php else : ?>
+        <p>Aucun résultat pour cette année.</p>
+    <?php endif; ?>
+<?php endif; ?>

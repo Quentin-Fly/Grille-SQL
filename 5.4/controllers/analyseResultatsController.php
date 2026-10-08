@@ -78,10 +78,13 @@
             $typeSelectionne = 'TOUS';
         }
     }
+    $moyennesParEnseignant = [];
+
     if ($anneeSelectionnee !== null) 
     {
         $resultats = getResultatsParAnnee($pdo, $anneeSelectionnee);
         $moyenneStage = getMoyenneStageParAnnee($pdo, $anneeSelectionnee);
+        $moyennesParEnseignant = getMoyennesParEnseignant($pdo, $anneeSelectionnee);
     }
     // Charger la vue après la récupération des résultats de l'année validée.
     require __DIR__ . '/../view/analyse_resultats/index.php';

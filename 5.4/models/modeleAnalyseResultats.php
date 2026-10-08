@@ -140,5 +140,26 @@
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+    function getMoyennesParEnseignant($pdo, $anneeDebut)
+    {
+        $stmt = $pdo->prepare(
+            "SELECT e.IdEnseignant,
+                    e.nom,
+                    e.prenom,
+                    AVG(ev.noteStage) AS moyenne,
+                    COUNT(ev.noteStage) AS nombreNotes
+            FROM enseignants e
+            JOIN evalstage ev
+            ON e.IdEnseignant = ev.IdEnseignant
+            WHERE ev.anneeDebut = :anneeDebut
+            AND ev.Statut IN ('BLOQUEE', 'DIFFUSEE')
+            GROUP BY e.IdEnseignant, e.nom, e.prenom
+            ORDER BY e.nom, e.prenom"
+        );
 
+        $stmt->bindValue(':anneeDebut', $anneeDebut, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 ?>
