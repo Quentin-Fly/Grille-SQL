@@ -201,4 +201,31 @@
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
-?>
+
+    // Compte tous les stages, par année et département, indépendamment des notes.
+    function getRepartitionStagesParDepartement($pdo)
+    {
+        $stmt = $pdo->prepare(
+            "SELECT a.anneeDebut,
+                    CASE
+                        WHEN TRIM(e.codePostal) REGEXP '^[0-9]{5}$' THEN
+                            CASE
+                                WHEN LEFT(TRIM(e.codePostal), 3) IN ('971', '972', '973', '974', '976')
+                                    THEN LEFT(TRIM(e.codePostal), 3)
+                                WHEN LEFT(TRIM(e.codePostal), 2) = '20'
+                                    THEN '20 (Corse, département à préciser)'
+                                WHEN LEFT(TRIM(e.codePostal), 2) BETWEEN '01' AND '95'
+                                    THEN LEFT(TRIM(e.codePostal), 2)
+                                ELSE 'Non déterminé'
+                            END
+                        ELSE 'Non déterminé'
+                    END AS departement,
+                    COUNT(*) AS nombreStages
+             FROM anneestage a
+             LEFT JOIN entreprises e ON a.IdEntreprise = e.IdEntreprise
+             GROUP BY a.anneeDebut, departement
+             ORDER BY a.anneeDebut DESC, departement"
+        );
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }

@@ -88,6 +88,9 @@
         $moyennesParEnseignant = getMoyennesParEnseignant($pdo, $anneeSelectionnee);
         $alertes = getAlertesParAnnee($pdo, $anneeSelectionnee);
     }
+    // La répartition compare toutes les années, indépendamment du filtre de résultats.
+    $repartitionStages = getRepartitionStagesParDepartement($pdo);
+
     // Charger la vue après la récupération des résultats de l'année validée.
     require __DIR__ . '/../view/analyse_resultats/index.php';
 ?>

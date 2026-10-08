@@ -20,5 +20,6 @@
         <?php require __DIR__ . '/moyennes.php'; ?>
         <!-- Affichage des alertes -->
         <?php require __DIR__ . '/alerte.php'; ?>
+        <?php require __DIR__ . '/repartitionStages.php'; ?>
     </body>
 </html> 
