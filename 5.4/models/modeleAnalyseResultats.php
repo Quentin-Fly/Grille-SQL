@@ -140,6 +140,7 @@
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+    // Calcule la moyenne selon les enseignant
     function getMoyennesParEnseignant($pdo, $anneeDebut)
     {
         $stmt = $pdo->prepare(
@@ -155,6 +156,44 @@
             AND ev.Statut IN ('BLOQUEE', 'DIFFUSEE')
             GROUP BY e.IdEnseignant, e.nom, e.prenom
             ORDER BY e.nom, e.prenom"
+        );
+
+        $stmt->bindValue(':anneeDebut', $anneeDebut, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+    // Récupère les alerte par année
+    function getAlertesParAnnee($pdo, $anneeDebut)
+    {
+        $stmt = $pdo->prepare(
+            "SELECT ev.IdEtudiant,
+                    e.nom,
+                    e.prenom,
+                    ev.date_h,
+                    ev.Statut,
+                    ev.noteRapport,
+                    ev.noteSoutenance,
+                    ev.noteSoutenanceEnseignant1,
+                    ev.noteSoutenanceEnseignant2,
+                    ep.note AS notePortfolio
+            FROM evalstage ev
+            JOIN etudiantsbut2ou3 e
+            ON ev.IdEtudiant = e.IdEtudiant
+            LEFT JOIN evalportfolio ep
+            ON ev.IdEtudiant = ep.IdEtudiant
+            AND ev.anneeDebut = ep.anneeDebut
+            WHERE ev.anneeDebut = :anneeDebut
+            AND ev.date_h < NOW()
+            AND ev.Statut NOT IN ('VALIDEE', 'BLOQUEE', 'DIFFUSEE')
+            AND (
+                ev.noteRapport IS NULL
+                OR ev.noteSoutenance IS NULL
+                OR ep.note IS NULL
+                OR ev.noteSoutenanceEnseignant1 IS NULL
+                OR ev.noteSoutenanceEnseignant2 IS NULL
+            )
+            ORDER BY ev.date_h, e.nom, e.prenom"
         );
 
         $stmt->bindValue(':anneeDebut', $anneeDebut, PDO::PARAM_INT);
