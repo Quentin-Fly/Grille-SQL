@@ -13,6 +13,26 @@
                 </option>
             <?php endforeach; ?>
         </select>
+        <?php
+            $typesEvaluation = [
+                'TOUS' => 'Tous les types',
+                'STAGE' => 'Stage',
+                'ENTREPRISE' => 'Entreprise',
+                'TUTEUR' => 'Tuteur',
+                'SOUTENANCE' => 'Soutenance',
+                'RAPPORT' => 'Rapport',
+                'PORTFOLIO' => 'Portfolio',
+                'ANGLAIS' => 'Anglais'
+            ];
+        ?>
+        <label for="typeEvaluation">Type d'évaluation :</label>
+        <select name="typeEvaluation" id="typeEvaluation">
+            <?php foreach ($typesEvaluation as $valeur => $libelle) : ?>
+                <option value="<?= htmlspecialchars($valeur, ENT_QUOTES, 'UTF-8') ?>" <?= $typeSelectionne === $valeur ? 'selected' : '' ?>>
+                    <?= htmlspecialchars($libelle, ENT_QUOTES, 'UTF-8') ?>
+                </option>
+            <?php endforeach; ?>
+        </select>
         <button type="submit">Filtrer</button>
     </form>
 <?php endif; ?>

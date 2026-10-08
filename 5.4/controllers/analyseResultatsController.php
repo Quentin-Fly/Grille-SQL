@@ -55,6 +55,29 @@
             }
         }
     }
+    $typeSelectionne = $_GET['typeEvaluation'] ?? 'TOUS';
+    $moyennesParType = [];
+    if (!is_string($typeSelectionne))
+    {
+        $erreurFiltre = "Type d'évaluation invalide.";
+        $typeSelectionne = 'TOUS';
+    } 
+    elseif ($anneeSelectionnee !== null) 
+    {
+        try
+        {
+            $moyennesParType = getMoyennesParType(
+                $pdo,
+                $anneeSelectionnee,
+                $typeSelectionne
+            );
+        } 
+        catch (InvalidArgumentException $e) 
+        {
+            $erreurFiltre = $e->getMessage();
+            $typeSelectionne = 'TOUS';
+        }
+    }
     if ($anneeSelectionnee !== null) 
     {
         $resultats = getResultatsParAnnee($pdo, $anneeSelectionnee);

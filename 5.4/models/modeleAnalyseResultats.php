@@ -80,4 +80,65 @@
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
+    // Calcule de la moyenne selon le type d'évaluation
+    function getMoyennesParType($pdo, $anneeDebut, $typeSelectionne = 'TOUS')
+    {
+        $types = [
+            'STAGE'      => ['evalstage', 'noteStage', 'Stage'],
+            'ENTREPRISE' => ['evalstage', 'noteEntreprise', 'Entreprise'],
+            'TUTEUR'     => ['evalstage', 'noteTuteur', 'Tuteur'],
+            'SOUTENANCE' => ['evalstage', 'noteSoutenance', 'Soutenance'],
+            'RAPPORT'    => ['evalrapport', 'note', 'Rapport'],
+            'PORTFOLIO'  => ['evalportfolio', 'note', 'Portfolio'],
+            'ANGLAIS'    => ['evalanglais', 'note', 'Anglais']
+        ];
+
+        if ($typeSelectionne !== 'TOUS' && !isset($types[$typeSelectionne])) 
+        {
+            throw new InvalidArgumentException("Type d'évaluation invalide.");
+        }
+
+        $typesDemandes = $typeSelectionne === 'TOUS'
+            ? $types
+            : [$typeSelectionne => $types[$typeSelectionne]];
+
+        $requetes = [];
+        $parametres = [];
+
+        foreach ($typesDemandes as $type => [$table, $colonne, $libelle]) 
+        {
+            $parametreAnnee = ':annee_' . $type;
+            $parametreLibelle = ':libelle_' . $type;
+
+            $requetes[] = "
+                SELECT $parametreLibelle AS typeEvaluation,
+                    AVG($colonne) AS moyenne,
+                    COUNT($colonne) AS nombreNotes
+                FROM $table
+                WHERE anneeDebut = $parametreAnnee
+                AND Statut IN ('BLOQUEE', 'DIFFUSEE')
+            ";
+
+            $parametres[$parametreAnnee] = $anneeDebut;
+            $parametres[$parametreLibelle] = $libelle;
+        }
+
+        $stmt = $pdo->prepare(implode(' UNION ALL ', $requetes));
+
+        foreach ($parametres as $parametre => $valeur)
+        {
+            $stmt->bindValue(
+                $parametre,
+                $valeur,
+                str_starts_with($parametre, ':annee_')
+                    ? PDO::PARAM_INT
+                    : PDO::PARAM_STR
+            );
+        }
+
+        $stmt->execute();
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
 ?>

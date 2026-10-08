@@ -14,7 +14,7 @@ Elle concerne uniquement la section 5.4 du sujet, page 14. La saisie des notes, 
 - [x] Préparer un jeu de données fictives pour les consultations et statistiques.
 - [x] Vérifier le jeu de données : 15 contrôles de cohérence réussis sur tables temporaires.
 - [x] Importer le jeu fictif dans `grille_sql_test_54_20261008` et vérifier son accès depuis 5.4.
-- [x] Créer les fichiers PHP et les vues ; les vues de résultats et de fiche sont remplies ; la moyenne de stage est affichée ; moyennes par enseignant et par type, alertes et répartition restent à réaliser.
+- [x] Créer les fichiers PHP et les vues ; les vues de résultats et de fiche sont remplies ; la moyenne de stage est affichée ; les moyennes par type sont affichées ; moyennes par enseignant, alertes et répartition restent à réaliser.
 - [x] Configurer la connexion à la base de test séparée, conforme aux colonnes de `DB_OK.sql`.
 - [x] Récupérer les années et valider le filtre, avec conservation de l'année choisie.
 - [x] Écrire et brancher `getResultatsParAnnee` : requête de résultats `BLOQUEE` ou `DIFFUSEE`, filtrée par année.
@@ -34,11 +34,14 @@ Elle concerne uniquement la section 5.4 du sujet, page 14. La saisie des notes, 
 
 - [x] Afficher la moyenne de stage pour l'année sélectionnée (BUT2 et BUT3 réunis, évaluations `BLOQUEE` ou `DIFFUSEE`).
 - [ ] Afficher les moyennes par enseignant.
-- [ ] Afficher les moyennes par type d'évaluation.
+- [x] Afficher les moyennes par type : stage, entreprise, tuteur, soutenance, rapport, portfolio et anglais.
+- [x] Proposer un filtre « Tous les types » ou un type précis, avec conservation du choix et de l'année.
 - [x] Afficher le nombre de notes pris en compte dans la moyenne de stage.
-- [ ] Afficher le nombre de notes pour les futures moyennes par enseignant et type.
+- [x] Afficher le nombre de notes pour les moyennes par type.
+- [ ] Afficher le nombre de notes pour les moyennes par enseignant.
 - [x] Afficher « Aucune note disponible » lorsque la moyenne de stage ne dispose d'aucune note.
-- [ ] Appliquer ce traitement aux futures moyennes par enseignant et type.
+- [x] Afficher « Aucune note » pour les types sans note renseignée.
+- [ ] Appliquer ce traitement aux moyennes par enseignant.
 
 Le sujet ne précise pas tous les filtres des moyennes. Définir et documenter les statuts retenus, l'année et les parcours concernés. Pour les enseignants, préciser le rôle considéré : enseignant tuteur, second enseignant ou enseignant d'anglais. Ne pas compter plusieurs fois une note à cause des jointures avec les critères.
 
@@ -90,7 +93,7 @@ Le schéma fourni possède `entreprises.codePostal` et `villeE`, mais aucune col
 | `models/modeleAnalyseResultats.php` | Requêtes SELECT pour les résultats, moyennes, alertes et statistiques géographiques. |
 | `controllers/analyseResultatsController.php` | Valide les filtres, appelle le modèle et prépare les variables des vues. |
 | `view/analyse_resultats/index.php` | Assemble les vues et affiche les messages. |
-| `view/analyse_resultats/filtres.php` | Sélection de l'année ; le filtre de parcours reste à ajouter si retenu. La sélection d'étudiant se fait par le lien « Voir la fiche » dans la liste. |
+| `view/analyse_resultats/filtres.php` | Sélection de l'année et du type d'évaluation ; le filtre de parcours reste à ajouter si retenu. La sélection d'étudiant se fait par le lien « Voir la fiche » dans la liste. |
 | `view/analyse_resultats/resultatsStages.php` | Tableau des évaluations terminées. |
 | `view/analyse_resultats/ficheEtudiant.php` | Fiche complète de l'étudiant sélectionné. |
 | `view/analyse_resultats/moyennes.php` | Moyennes de promotion, par enseignant et par type d'évaluation. |
@@ -137,9 +140,10 @@ Ces moyennes supposent le filtre indiqué ; inclure des notes encore en saisie p
 - [x] Vérifier la récupération des résultats sur plusieurs années et l'affichage des fiches BUT2/BUT3.
 - [x] Vérifier qu'une demande de fiche pour une année où l'étudiant n'a pas de stage est refusée.
 - [ ] Tester un même étudiant avec des stages sur plusieurs années.
-- [ ] Comparer les moyennes aux valeurs de référence du jeu fictif.
+- [x] Comparer les moyennes de stage et de portfolio aux valeurs de référence : 15 et 9,75 pour 2025-2026.
+- [ ] Vérifier les valeurs de référence des autres types et des moyennes par enseignant.
 - [x] Vérifier dans la fiche que `NULL` affiche « Non renseignée » et que zéro reste affiché.
-- [ ] Vérifier que les notes nulles sont exclues des moyennes et que zéro est conservé.
+- [x] Vérifier le zéro du portfolio dans la moyenne 9,75 sur 4 notes et les moyennes NULL avec zéro note en 2026-2027.
 - [ ] Vérifier les moyennes par enseignant et l'absence de doublons dus aux jointures.
 - [ ] Tester les alertes avec des notes manquantes et des soutenances passées ou futures.
 - [ ] Comparer les effectifs géographiques au jeu fictif.
