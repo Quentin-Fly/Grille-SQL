@@ -45,7 +45,15 @@
     <br>
 
     <label for="anneeDebut">Année de début :</label>
-    <input type="number" name="anneeDebut" id="anneeDebut" value="<?= htmlspecialchars($valeursFormulaire['anneeDebut'], ENT_QUOTES, 'UTF-8') ?>" required>
+    <select name="anneeDebut" id="anneeDebut" required>
+        <option value="">Sélectionnez une année existante</option>
+        <?php foreach ($anneesDisponibles as $annee) : ?>
+            <option value="<?= (int) $annee['anneeDebut'] ?>" <?= (string) $valeursFormulaire['anneeDebut'] === (string) $annee['anneeDebut'] ? 'selected' : '' ?>>
+                <?= (int) $annee['anneeDebut'] ?> - <?= (int) $annee['fin'] ?>
+            </option>
+        <?php endforeach; ?>
+    </select>
+    <p>L'année doit être créée avec ses dates de soutenance avant l'ajout d'une grille.</p>
     <br>
     
     <button type="submit" name="creerModele">Créer la grille</button>

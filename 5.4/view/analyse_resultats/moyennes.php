@@ -20,7 +20,7 @@
         <thead>
             <tr>
                 <th>Type</th>
-                <th>Moyenne</th>
+                <th>Moyenne sur 20</th>
                 <th>Nombre de notes</th>
             </tr>
         </thead>
@@ -50,7 +50,7 @@
                 <tr>
                     <th>Nom</th>
                     <th>Prénom</th>
-                    <th>Moyenne</th>
+                    <th>Moyenne sur 20</th>
                     <th>Nombre de notes</th>
                 </tr>
             </thead>

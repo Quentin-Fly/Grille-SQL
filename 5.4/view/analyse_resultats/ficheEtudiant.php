@@ -21,13 +21,13 @@
     ?>
     <table>
         <thead>
-            <tr><th>Évaluation</th><th>Note</th></tr>
+            <tr><th>Évaluation</th><th>Note sur 20</th></tr>
         </thead>
         <tbody>
             <?php foreach ($notesFiche as $libelle => $cle) : ?>
                 <tr>
                     <td><?= htmlspecialchars($libelle, ENT_QUOTES, 'UTF-8') ?></td>
-                    <td><?= $ficheEtudiant[$cle] === null ? 'Non renseignée' : htmlspecialchars((string) $ficheEtudiant[$cle], ENT_QUOTES, 'UTF-8') ?></td>
+                    <td><?= $ficheEtudiant[$cle] === null ? 'Non renseignée ou barème indisponible' : htmlspecialchars((string) $ficheEtudiant[$cle], ENT_QUOTES, 'UTF-8') ?></td>
                 </tr>
             <?php endforeach; ?>
         </tbody>

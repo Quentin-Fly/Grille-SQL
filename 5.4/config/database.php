@@ -1,9 +1,9 @@
 <?php
-// Base de test séparée : tables conformes à DB_OK.sql, sans les triggers du groupe.
+// Base commune aux trois modules.
 $host = 'localhost';
 $username = 'root';
 $password = '';
-$database = 'grille_sql_test_54_20261008'; // Pour l'intégration finale : stagebdmerge.
+$database = 'stagebdmerge';
 
 try {
     $pdo = new PDO("mysql:host=$host;dbname=$database;charset=utf8mb4", $username, $password);

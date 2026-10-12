@@ -1,7 +1,7 @@
 <?php
     // Fichier du contrôleur pour gérer les modèles de grille d'évaluation
     require_once __DIR__ . "/../config/database.php";
-    require_once __DIR__ . "/../models/ModeleGrille.php";
+    require_once __DIR__ . "/../models/modeleGrille.php";
 
     // Variable pour déterminer si l'affichage de la création d'un modèle est activé ou non
     $afficherCreation = false;
@@ -70,7 +70,7 @@
                         );
                     }
                 }
-                catch (PDOException $e)
+                catch (Throwable $e)
                 {
                     error_log($e->getMessage());
 
@@ -180,7 +180,7 @@
                 }
                 else
                 {
-                    $erreurCreation = "La création du modèle a échoué. Veuillez réessayer.";
+                    $erreurCreation = $e instanceof RuntimeException && !($e instanceof PDOException) ? $e->getMessage() : "La création du modèle a échoué. Veuillez réessayer.";
                 }
             }        
         }
@@ -250,7 +250,7 @@
                     } 
                         }
             }
-            catch (PDOException $e)
+            catch (Throwable $e)
             {
                 error_log($e->getMessage());
                 $afficherEdition = false;
@@ -303,9 +303,9 @@
                 {
                     $criteresModele = getCriteresParIdModele($pdo, $idModeleEval);
                     $afficherEdition = true;
-                    if (modelePossedeNotes($pdo, $idModeleEval))
+                    if (modeleEstUtilise($pdo, $idModeleEval))
                     {
-                        $erreurCreation = "Ce modèle possède déjà des notes. Duplique-le pour le modifier.";
+                        $erreurCreation = "Ce modèle est déjà utilisé par une évaluation. Duplique-le pour le modifier.";
                         $afficherFormulaireCritere = false;
                     }
                     else
@@ -317,16 +317,16 @@
                     }
                 }
             }
-            catch (PDOException $e)
+            catch (Throwable $e)
             {
                 error_log($e->getMessage());
-                if ($e->getCode() === '23000' && ($e->errorInfo[1] ?? null) == 1062) // Code d'erreur pour violation de contrainte d'unicité
+                if ($e->getCode() === '23000' && (($e instanceof PDOException ? ($e->errorInfo[1] ?? null) : null)) == 1062) // Code d'erreur pour violation de contrainte d'unicité
                 {
                     $erreurCritere[] = "Un critère possédant ces informations existe déjà.";
                 }
                 else
                 {
-                    $erreurCritere[] = "La création du critère a échoué. Veuillez réessayer.";
+                    $erreurCritere[] = $e instanceof RuntimeException && !($e instanceof PDOException) ? $e->getMessage() : "La création du critère a échoué. Veuillez réessayer.";
                 }
             }
         }
@@ -380,9 +380,9 @@
                     $criteresModele = getCriteresParIdModele($pdo, $idModeleEval);
 
                     // Refuser l'association après avoir chargé la grille pour conserver son affichage.
-                    if (modelePossedeNotes($pdo, $idModeleEval))
+                    if (modeleEstUtilise($pdo, $idModeleEval))
                     {
-                        $erreurCreation = "Ce modèle possède déjà des notes. Duplique-le pour le modifier.";
+                        $erreurCreation = "Ce modèle est déjà utilisé par une évaluation. Duplique-le pour le modifier.";
                     }
                     else
                     {
@@ -411,10 +411,10 @@
                     }
                 }
             }
-            catch (PDOException $e)
+            catch (Throwable $e)
             {
                 error_log($e->getMessage());
-                if ($e->getCode() === '23000' && ($e->errorInfo[1] ?? null) == 1062)
+                if ($e->getCode() === '23000' && (($e instanceof PDOException ? ($e->errorInfo[1] ?? null) : null)) == 1062)
                 {
                     $erreurCreation = "Ce critère est déjà associé à ce modèle.";
                 }
@@ -449,9 +449,9 @@
                     $afficherEdition = true;
 
                     // Le retrait doit rester dans le else pour ne jamais contourner le refus.
-                    if (modelePossedeNotes($pdo, $idModeleEval))
+                    if (modeleEstUtilise($pdo, $idModeleEval))
                     {
-                        $erreurCreation = "Ce modèle possède déjà des notes. Duplique-le pour le modifier.";
+                        $erreurCreation = "Ce modèle est déjà utilisé par une évaluation. Duplique-le pour le modifier.";
                     }
                     else
                     {
@@ -468,7 +468,7 @@
                     }
                 }
             }
-            catch (PDOException $e)
+            catch (Throwable $e)
             {
                 error_log($e->getMessage());
                 $erreurCreation = "Le retrait du critère a échoué. Veuillez réessayer.";
@@ -511,9 +511,9 @@
                         }
                     }
 
-                    if (modelePossedeNotes($pdo, $idModeleEval))
+                    if (modeleEstUtilise($pdo, $idModeleEval))
                     {
-                        $erreurCreation = "Ce modèle possède déjà des notes. Duplique-le pour le modifier.";
+                        $erreurCreation = "Ce modèle est déjà utilisé par une évaluation. Duplique-le pour le modifier.";
                     }
                     elseif (!$critereAssocie)
                     {
@@ -527,7 +527,7 @@
                     }
                 }
             }
-            catch (PDOException $e)
+            catch (Throwable $e)
             {
                 error_log($e->getMessage());
                 $erreurCreation = "La modification de la valeur maximale a échoué. Veuillez réessayer.";
@@ -566,9 +566,9 @@
                             break;
                         }
                     }
-                    if (modelePossedeNotes($pdo, $idModeleEval))
+                    if (modeleEstUtilise($pdo, $idModeleEval))
                     {
-                        $erreurCreation = "Ce modèle possède déjà des notes. Duplique-le pour le modifier.";
+                        $erreurCreation = "Ce modèle est déjà utilisé par une évaluation. Duplique-le pour le modifier.";
                         $critereAModifier = null;
                     }
                     elseif ($critereAModifier === null)
@@ -577,7 +577,7 @@
                     }
                 }
             }
-            catch (PDOException $e)
+            catch (Throwable $e)
             {
                 error_log($e->getMessage());
                 $erreurCreation = "Impossible de charger le critère à modifier.";
@@ -618,9 +618,9 @@
                             break;
                         }
                     }
-                    if (modelePossedeNotes($pdo, $idModeleEval))
+                    if (modeleEstUtilise($pdo, $idModeleEval))
                     {
-                        $erreurCreation = "Ce modèle possède déjà des notes. Duplique-le pour le modifier.";
+                        $erreurCreation = "Ce modèle est déjà utilisé par une évaluation. Duplique-le pour le modifier.";
                         $critereAModifier = null;
                     }
                     elseif ($critereAModifier === null)
@@ -652,6 +652,7 @@
     }
 
     // Charger les listes après les traitements pour afficher les données actualisées.
+    $anneesDisponibles = getAnneesDisponiblesPourGrille($pdo);
     $listModele = getAllModele($pdo);
     $listCritere = [];
     if ($modeleSelectionne)

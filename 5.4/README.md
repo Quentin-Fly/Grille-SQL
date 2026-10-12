@@ -1,3 +1,5 @@
+> Mise à jour de compatibilité : la connexion cible désormais `stagebdmerge`. Les mentions historiques de base de test ci-dessous décrivent les essais précédents. Installer d'abord `../sql/corrections_stagebdmerge.sql` selon `../CORRECTIONS_BD.md`. La migration SQL n'est pas appliquée automatiquement.
+
 # Section 5.4 — Outils d'analyse des résultats
 
 Mise à jour : 8 octobre 2026.

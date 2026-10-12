@@ -1,5 +1,5 @@
 <?php
-    // Récupère les années universitaires du schéma DB_OK.sql.
+    // Récupère les années universitaires de la base commune stagebdmerge.
     function getAnneesUniversitaires($pdo)
     {
         $stmt = $pdo->prepare(
@@ -39,9 +39,9 @@
                     ev.noteEntreprise,
                     ev.noteTuteur,
                     ev.noteSoutenance,
-                    evr.note AS noteRapport,
-                    evp.note AS notePortfolio,
-                    eva.note AS noteAnglais
+                    evr.note * 20.0 / NULLIF(m_evr.noteMaxGrille, 0) AS noteRapport,
+                    evp.note * 20.0 / NULLIF(m_evp.noteMaxGrille, 0) AS notePortfolio,
+                    eva.note * 20.0 / NULLIF(m_eva.noteMaxGrille, 0) AS noteAnglais
             FROM etudiantsbut2ou3 e
             JOIN anneestage a
             ON e.IdEtudiant = a.IdEtudiant
@@ -51,12 +51,15 @@
             LEFT JOIN evalrapport evr
             ON a.IdEtudiant = evr.IdEtudiant
             AND a.anneeDebut = evr.anneeDebut
+            LEFT JOIN modelesgrilleeval m_evr ON m_evr.IdModeleEval = evr.IdModeleEval
             LEFT JOIN evalportfolio evp
             ON a.IdEtudiant = evp.IdEtudiant
             AND a.anneeDebut = evp.anneeDebut
+            LEFT JOIN modelesgrilleeval m_evp ON m_evp.IdModeleEval = evp.IdModeleEval
             LEFT JOIN evalanglais eva
             ON a.IdEtudiant = eva.IdEtudiant
             AND a.anneeDebut = eva.anneeDebut
+            LEFT JOIN modelesgrilleeval m_eva ON m_eva.IdModeleEval = eva.IdModeleEval
             WHERE e.IdEtudiant = :idEtudiant
             AND a.anneeDebut = :anneeDebut"
         );
@@ -110,13 +113,17 @@
             $parametreAnnee = ':annee_' . $type;
             $parametreLibelle = ':libelle_' . $type;
 
+            $expressionNote = in_array($type, ['RAPPORT', 'PORTFOLIO', 'ANGLAIS'], true)
+                ? "ev.$colonne * 20.0 / NULLIF(m.noteMaxGrille, 0)" : "ev.$colonne";
+            $jointure = in_array($type, ['RAPPORT', 'PORTFOLIO', 'ANGLAIS'], true)
+                ? ' LEFT JOIN modelesgrilleeval m ON m.IdModeleEval = ev.IdModeleEval' : '';
             $requetes[] = "
                 SELECT $parametreLibelle AS typeEvaluation,
-                    AVG($colonne) AS moyenne,
-                    COUNT($colonne) AS nombreNotes
-                FROM $table
-                WHERE anneeDebut = $parametreAnnee
-                AND Statut IN ('BLOQUEE', 'DIFFUSEE')
+                    AVG($expressionNote) AS moyenne,
+                    COUNT($expressionNote) AS nombreNotes
+                FROM $table ev $jointure
+                WHERE ev.anneeDebut = $parametreAnnee
+                AND ev.Statut IN ('BLOQUEE', 'DIFFUSEE')
             ";
 
             $parametres[$parametreAnnee] = $anneeDebut;

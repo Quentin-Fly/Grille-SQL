@@ -32,9 +32,7 @@
 
             if ($anneeExiste === false)
             {
-                $sqlInsert = "INSERT INTO anneesuniversitaires (anneeDebut, fin) VALUES (:anneeDebut, :anneeFin)";
-                $stmtInsert = $pdo->prepare($sqlInsert);
-                $stmtInsert->execute([':anneeDebut' => $anneeDebut, ':anneeFin' => $anneeDebut + 1]);
+                throw new RuntimeException("Crée d'abord l'année universitaire avec ses six dates de soutenance.");
             }
 
             // Ajouter un nouveau modèle à la base de données
@@ -111,13 +109,27 @@
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+    function verifierCapaciteModele($pdo, $idModeleEval)
+    {
+        $stmt = $pdo->prepare('SELECT IdModeleEval FROM modelesgrilleeval WHERE IdModeleEval = :id FOR UPDATE');
+        $stmt->execute([':id' => $idModeleEval]);
+        if ($stmt->fetchColumn() === false) {
+            throw new RuntimeException("Le modèle n'existe pas.");
+        }
+        $stmt = $pdo->prepare('SELECT COUNT(*) FROM modelecontenircriteres WHERE IdModeleEval = :id');
+        $stmt->execute([':id' => $idModeleEval]);
+        if ((int) $stmt->fetchColumn() >= 15) {
+            throw new RuntimeException('Une grille ne peut pas avoir plus de 15 critères.');
+        }
+    }
     function addCritere($pdo, $idModeleEval, $descCourteCritere, $descLongueCritere, $valeurMaxCritere)
     {
         $pdo->beginTransaction();
         try
         {
-           // Creation du critère
-            $sql = "INSERT INTO CriteresEval (descCourte, descLongue) 
+           verifierCapaciteModele($pdo, $idModeleEval);
+            // Création du critère
+            $sql = "INSERT INTO critereseval (descCourte, descLongue) 
                     VALUES (:descCourte, :descLongue)";
 
             $stmt = $pdo->prepare($sql);
@@ -126,12 +138,12 @@
 
             $stmt->execute();
 
-            // Identifiant créé automatiquement dans CriteresEval
+            // Identifiant créé automatiquement dans critereseval
             $idCritereEval = $pdo->lastInsertId();            
 
             // Trouver le prochain numé d'odre de ce modele
             $sql = "SELECT COALESCE(MAX(NumOrdre), 0)
-                    FROM ModeleContenirCriteres
+                    FROM modelecontenircriteres
                      WHERE IdModeleEval = :idModeleEval";
 
             $stmt = $pdo->prepare($sql);
@@ -142,7 +154,7 @@
 
             // Associer le nouveau critère au modèle
 
-            $sql = "INSERT INTO ModeleContenirCriteres (
+            $sql = "INSERT INTO modelecontenircriteres (
                                             IdCritere,
                                             IdModeleEval,
                                             ValeurMaxCritereEval,
@@ -177,7 +189,7 @@
         try
         {
             // Supprimer l'association du critère avec le modèle
-            $sql = "DELETE FROM ModeleContenirCriteres 
+            $sql = "DELETE FROM modelecontenircriteres 
                     WHERE IdModeleEval = :idModeleEval AND IdCritere = :idCritere";
             $stmt = $pdo->prepare($sql);
             $stmt->execute([':idModeleEval' => $idModeleEval, ':idCritere' => $idCritere]);
@@ -213,9 +225,10 @@
         $pdo ->beginTransaction();
         try
         {
-            // Trouver le prochain numé d'odre de ce modele
+            verifierCapaciteModele($pdo, $idModeleEval);
+            // Trouver le prochain numéro d'ordre
             $sql = "SELECT COALESCE(MAX(NumOrdre), 0)
-                    FROM ModeleContenirCriteres
+                    FROM modelecontenircriteres
                      WHERE IdModeleEval = :idModeleEval";
 
             $stmt = $pdo->prepare($sql);
@@ -225,7 +238,7 @@
             $nouvelOrdre = $ordreMaximum + 1;
 
             // Associer le critère existant au modèle
-            $sql = "INSERT INTO ModeleContenirCriteres (
+            $sql = "INSERT INTO modelecontenircriteres (
                                             IdCritere,
                                             IdModeleEval,
                                             ValeurMaxCritereEval,
@@ -258,7 +271,7 @@
         $pdo ->beginTransaction();
         try
         {
-            $sql = "UPDATE ModeleContenirCriteres
+            $sql = "UPDATE modelecontenircriteres
                     SET ValeurMaxCritereEval = :valeurMaxCritere
                     WHERE IdModeleEval = :idModeleEval AND IdCritere = :idCritere";
             $stmt = $pdo->prepare($sql);
@@ -281,7 +294,7 @@
         $pdo->beginTransaction();
         try
         {
-            $sql = "INSERT INTO CriteresEval (descCourte, descLongue)
+            $sql = "INSERT INTO critereseval (descCourte, descLongue)
                     VALUES (:descCourte, :descLongue)";
             $stmt = $pdo->prepare($sql);
             $stmt->execute([
@@ -291,7 +304,7 @@
             $nouvelleIdCritereEval = $pdo->lastInsertId();
 
             // Conserver les points et l'ordre ; changer uniquement l'identifiant du critère.
-            $sql = "UPDATE ModeleContenirCriteres
+            $sql = "UPDATE modelecontenircriteres
                     SET IdCritere = :nouvelIdCritere, ValeurMaxCritereEval = :valeurMaxCritere
                     WHERE IdModeleEval = :idModeleEval AND IdCritere = :ancienIdCritere";
             $stmt = $pdo->prepare($sql);
@@ -329,13 +342,16 @@
                 throw new RuntimeException("Le modèle source n'existe pas.");
             }
 
+            if (count(getCriteresParIdModele($pdo, $idModeleSource)) > 15) {
+                throw new RuntimeException('Le modèle source dépasse 15 critères.');
+            }
             $idNouveauModele = addModele($pdo, $modeleSource['natureGrille'], $noteMaxGrille, $nomModuleGrilleEvaluation, $anneeDebut);
 
             // Partager les critères, en conservant exactement les points et les numéros d'ordre.
-            $sql = "INSERT INTO ModeleContenirCriteres
+            $sql = "INSERT INTO modelecontenircriteres
                         (IdCritere, IdModeleEval, ValeurMaxCritereEval, NumOrdre)
                     SELECT IdCritere, :idNouveauModele, ValeurMaxCritereEval, NumOrdre
-                    FROM ModeleContenirCriteres
+                    FROM modelecontenircriteres
                     WHERE IdModeleEval = :idModeleSource";
             $stmt = $pdo->prepare($sql);
             $stmt->execute([
@@ -397,4 +413,8 @@
             ':portfolio' => $idModeleEval, ':tuteur' => $idModeleEval, ':second' => $idModeleEval]);
         return $stmt->fetchColumn() !== false;
     }
-?>
+
+    function getAnneesDisponiblesPourGrille($pdo)
+    {
+        return $pdo->query('SELECT anneeDebut, fin FROM anneesuniversitaires ORDER BY anneeDebut DESC')->fetchAll(PDO::FETCH_ASSOC);
+    }
