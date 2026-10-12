@@ -320,14 +320,7 @@
             catch (Throwable $e)
             {
                 error_log($e->getMessage());
-                if ($e->getCode() === '23000' && (($e instanceof PDOException ? ($e->errorInfo[1] ?? null) : null)) == 1062) // Code d'erreur pour violation de contrainte d'unicité
-                {
-                    $erreurCritere[] = "Un critère possédant ces informations existe déjà.";
-                }
-                else
-                {
-                    $erreurCritere[] = $e instanceof RuntimeException && !($e instanceof PDOException) ? $e->getMessage() : "La création du critère a échoué. Veuillez réessayer.";
-                }
+                $erreurCritere[] = messageErreurCritere($e);
             }
         }
         if (!empty($erreurCritere))
@@ -414,14 +407,7 @@
             catch (Throwable $e)
             {
                 error_log($e->getMessage());
-                if ($e->getCode() === '23000' && (($e instanceof PDOException ? ($e->errorInfo[1] ?? null) : null)) == 1062)
-                {
-                    $erreurCreation = "Ce critère est déjà associé à ce modèle.";
-                }
-                else
-                {
-                    $erreurCreation = "L'association du critère a échoué. Veuillez réessayer.";
-                }
+                $erreurCreation = messageErreurCritere($e);
             }
         }
     }

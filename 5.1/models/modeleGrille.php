@@ -122,11 +122,48 @@
             throw new RuntimeException('Une grille ne peut pas avoir plus de 15 critères.');
         }
     }
+    // Le dump d'origine impose un ordre unique dans toute la table.
+    function verrouillerOrdreCritere($pdo)
+    {
+        $stmt = $pdo->query("SELECT GET_LOCK('grille_sql_ordre_critere', 5)");
+        if ((int) $stmt->fetchColumn() !== 1) {
+            throw new RuntimeException("Un ajout de critère est en cours. Réessaie dans quelques secondes.");
+        }
+    }
+
+    function prochainOrdreCritere($pdo)
+    {
+        return (int) $pdo->query('SELECT COALESCE(MAX(NumOrdre), 0) + 1 FROM modelecontenircriteres')->fetchColumn();
+    }
+
+    function messageErreurCritere($e)
+    {
+        if ($e instanceof PDOException) {
+            $code = $e->errorInfo[1] ?? null;
+            $detail = (string) ($e->errorInfo[2] ?? '');
+            if ($code == 1062) {
+                return stripos($detail, 'NumOrdre') !== false || stripos($detail, 'OrdreParModele') !== false
+                    ? "Le numéro d'ordre est déjà utilisé. Réessaie l'ajout du critère."
+                    : "Ce critère est déjà associé à ce modèle.";
+            }
+            if ($code == 1644 && stripos($detail, '15') !== false) {
+                return "La base refuse la création : sa limite de critères est atteinte. Dans le modèle SQL d'origine, cette limite est comptée sur toutes les grilles réunies.";
+            }
+        } elseif ($e instanceof RuntimeException) {
+            return $e->getMessage();
+        }
+        return "L'enregistrement du critère a échoué. Veuillez réessayer.";
+    }
+
     function addCritere($pdo, $idModeleEval, $descCourteCritere, $descLongueCritere, $valeurMaxCritere)
     {
+        $verrouOrdre = false;
+        $idCritereCree = null;
         $pdo->beginTransaction();
         try
         {
+            verrouillerOrdreCritere($pdo);
+            $verrouOrdre = true;
            verifierCapaciteModele($pdo, $idModeleEval);
             // Création du critère
             $sql = "INSERT INTO critereseval (descCourte, descLongue) 
@@ -139,18 +176,10 @@
             $stmt->execute();
 
             // Identifiant créé automatiquement dans critereseval
-            $idCritereEval = $pdo->lastInsertId();            
+            $idCritereEval = $pdo->lastInsertId();
+            $idCritereCree = $idCritereEval;            
 
-            // Trouver le prochain numé d'odre de ce modele
-            $sql = "SELECT COALESCE(MAX(NumOrdre), 0)
-                    FROM modelecontenircriteres
-                     WHERE IdModeleEval = :idModeleEval";
-
-            $stmt = $pdo->prepare($sql);
-            $stmt->execute([':idModeleEval' => $idModeleEval]);
-
-            $ordreMaximum = (int) $stmt->fetchColumn();
-            $nouvelOrdre = $ordreMaximum + 1;
+            $nouvelOrdre = prochainOrdreCritere($pdo);
 
             // Associer le nouveau critère au modèle
 
@@ -179,8 +208,25 @@
         }
         catch (Throwable $e)
         {
-            $pdo->rollBack();
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            // MyISAM ne rollback pas l'INSERT : retirer uniquement le critère créé sans association.
+            if ($idCritereCree !== null) {
+                try {
+                    $stmt = $pdo->prepare('DELETE c FROM critereseval c LEFT JOIN modelecontenircriteres m ON m.IdCritere = c.IdCritere WHERE c.IdCritere = :id AND m.IdCritere IS NULL');
+                    $stmt->execute([':id' => $idCritereCree]);
+                } catch (Throwable $nettoyage) {
+                    error_log($nettoyage->getMessage());
+                }
+            }
             throw $e;
+        }
+        finally
+        {
+            if ($verrouOrdre) {
+                $pdo->query("SELECT RELEASE_LOCK('grille_sql_ordre_critere')");
+            }
         }
     }
     function retirerCritere($pdo, $idModeleEval, $idCritere)
@@ -222,20 +268,15 @@
     // Fonction qui associe le critère existant à un modèle spécifique de la grille
     function associerCritere($pdo, $idModeleEval, $idCritereEval, $valeurMaxCritere)
     {
-        $pdo ->beginTransaction();
+        $verrouOrdre = false;
+        $idCritereCree = null;
+        $pdo->beginTransaction();
         try
         {
+            verrouillerOrdreCritere($pdo);
+            $verrouOrdre = true;
             verifierCapaciteModele($pdo, $idModeleEval);
-            // Trouver le prochain numéro d'ordre
-            $sql = "SELECT COALESCE(MAX(NumOrdre), 0)
-                    FROM modelecontenircriteres
-                     WHERE IdModeleEval = :idModeleEval";
-
-            $stmt = $pdo->prepare($sql);
-            $stmt->execute([':idModeleEval' => $idModeleEval]);
-
-            $ordreMaximum = (int) $stmt->fetchColumn();
-            $nouvelOrdre = $ordreMaximum + 1;
+            $nouvelOrdre = prochainOrdreCritere($pdo);
 
             // Associer le critère existant au modèle
             $sql = "INSERT INTO modelecontenircriteres (
@@ -263,6 +304,12 @@
         {
             $pdo->rollBack();
             throw $e;
+        }
+        finally
+        {
+            if ($verrouOrdre) {
+                $pdo->query("SELECT RELEASE_LOCK('grille_sql_ordre_critere')");
+            }
         }
     }
     // Fonction qui modifer la valeur maximale d'un critère associé à un modèle spécifique de la grille
@@ -333,9 +380,13 @@
     // Créer le modèle et copier ses associations dans une seule transaction.
     function copierModele($pdo, $idModeleSource, $natureGrille, $noteMaxGrille, $nomModuleGrilleEvaluation, $anneeDebut)
     {
+        $verrouOrdre = false;
+        $idCritereCree = null;
         $pdo->beginTransaction();
         try
         {
+            verrouillerOrdreCritere($pdo);
+            $verrouOrdre = true;
             $modeleSource = getModeleParId($pdo, $idModeleSource);
             if ($modeleSource === false)
             {
@@ -347,17 +398,14 @@
             }
             $idNouveauModele = addModele($pdo, $modeleSource['natureGrille'], $noteMaxGrille, $nomModuleGrilleEvaluation, $anneeDebut);
 
-            // Partager les critères, en conservant exactement les points et les numéros d'ordre.
-            $sql = "INSERT INTO modelecontenircriteres
-                        (IdCritere, IdModeleEval, ValeurMaxCritereEval, NumOrdre)
-                    SELECT IdCritere, :idNouveauModele, ValeurMaxCritereEval, NumOrdre
-                    FROM modelecontenircriteres
-                    WHERE IdModeleEval = :idModeleSource";
-            $stmt = $pdo->prepare($sql);
-            $stmt->execute([
-                ':idNouveauModele' => $idNouveauModele,
-                ':idModeleSource' => $idModeleSource
-            ]);
+            // Partager les critères avec de nouveaux ordres globaux, en conservant leur ordre relatif.
+            $criteresSource = getCriteresParIdModele($pdo, $idModeleSource);
+            $ordre = prochainOrdreCritere($pdo);
+            $stmt = $pdo->prepare('INSERT INTO modelecontenircriteres (IdCritere, IdModeleEval, ValeurMaxCritereEval, NumOrdre) VALUES (:critere, :modele, :maximum, :ordre)');
+            foreach ($criteresSource as $critere) {
+                $stmt->execute([':critere' => $critere['IdCritere'], ':modele' => $idNouveauModele,
+                    ':maximum' => $critere['ValeurMaxCritereEVal'], ':ordre' => $ordre++]);
+            }
 
             $pdo->commit();
             return $idNouveauModele;
@@ -369,6 +417,12 @@
                 $pdo->rollBack();
             }
             throw $e;
+        }
+        finally
+        {
+            if ($verrouOrdre) {
+                $pdo->query("SELECT RELEASE_LOCK('grille_sql_ordre_critere')");
+            }
         }
     }
     // Schéma actuel : deux évaluations de soutenance ; EvalStage ne référence aucun modèle.
